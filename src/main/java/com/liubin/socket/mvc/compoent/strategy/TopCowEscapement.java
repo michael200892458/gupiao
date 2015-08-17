@@ -6,6 +6,7 @@ import com.liubin.socket.mvc.compoent.redis.SocketInfoRedis;
 import com.liubin.socket.pojo.SocketInfoObject;
 import com.liubin.socket.utils.CommonConstants;
 import com.liubin.socket.utils.LogUtils;
+import com.liubin.socket.utils.MailUtils;
 import com.liubin.socket.utils.SockInfoUtils;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -86,9 +87,14 @@ public class TopCowEscapement {
                     validCodes.add(code);
                 }
             }
-            String content = JSON.toJSONString(validCodes);
-            socketInfoRedis.setTopCowEscapementCodes(content);
-            log.info("codes:{}", content);
+            if (validCodes.size() > 0) {
+                String content = JSON.toJSONString(validCodes);
+                socketInfoRedis.setTopCowEscapementCodes(content);
+                MailUtils.sendMail("TopCowEscapement", content);
+                log.info("codes:{}", content);
+            } else {
+                log.info("validCodes is empty");
+            }
         } catch (Exception e) {
             errorLog.error(e);
             socketInfoRedis.setLastTopCowEscapementTime(lastModifiedTime);

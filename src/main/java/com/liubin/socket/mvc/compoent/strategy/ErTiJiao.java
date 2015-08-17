@@ -6,6 +6,7 @@ import com.liubin.socket.mvc.compoent.redis.SocketInfoRedis;
 import com.liubin.socket.pojo.SocketInfoObject;
 import com.liubin.socket.utils.CommonConstants;
 import com.liubin.socket.utils.LogUtils;
+import com.liubin.socket.utils.MailUtils;
 import com.liubin.socket.utils.SockInfoUtils;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -75,9 +76,14 @@ public class ErTiJiao {
                     validCodes.add(code);
                 }
             }
-            String content = JSON.toJSONString(validCodes);
-            socketInfoRedis.setErTiJiaoCodes(content);
-            log.info("codes:{}", content);
+            if (validCodes.size() > 0) {
+                String content = JSON.toJSONString(validCodes);
+                socketInfoRedis.setErTiJiaoCodes(content);
+                MailUtils.sendMail("erTiJiao", content);
+                log.info("codes:{}", content);
+            } else {
+                log.info("the valid codes is empty");
+            }
         } catch (Exception e) {
             socketInfoRedis.setLastErTiJiaoModifiedTime(lastModifiedTime);
             errorLog.error(e);

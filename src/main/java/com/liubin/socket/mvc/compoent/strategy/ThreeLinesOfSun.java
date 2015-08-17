@@ -6,10 +6,7 @@ import com.liubin.socket.mvc.compoent.SingleInstanceContainer;
 import com.liubin.socket.mvc.compoent.redis.SocketInfoRedis;
 import com.liubin.socket.pojo.SinaSocketInfo;
 import com.liubin.socket.pojo.SocketInfoObject;
-import com.liubin.socket.utils.CommonConstants;
-import com.liubin.socket.utils.LogUtils;
-import com.liubin.socket.utils.SinaSocketUtils;
-import com.liubin.socket.utils.SockInfoUtils;
+import com.liubin.socket.utils.*;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,9 +85,14 @@ public class ThreeLinesOfSun {
                     validCodes.add(code);
                 }
             }
-            String content = JSON.toJSONString(validCodes);
-            socketInfoRedis.setThreeLinesOfSunCodes(content);
-            log.info("codes:{}", content);
+            if (validCodes.size() > 0) {
+                String content = JSON.toJSONString(validCodes);
+                socketInfoRedis.setThreeLinesOfSunCodes(content);
+                MailUtils.sendMail("threeLinesOfSun", content);
+                log.info("codes:{}", content);
+            } else {
+                log.info("the valid codes is empty");
+            }
         } catch (Exception e) {
             errorLog.error(e);
             socketInfoRedis.setLastThreeLinesOfSunTime(lastModifiedTime);
