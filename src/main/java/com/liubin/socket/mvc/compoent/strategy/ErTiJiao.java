@@ -57,8 +57,9 @@ public class ErTiJiao {
     }
 
     public void run() {
-        long lastModifiedTime = socketInfoRedis.getLastErTiJiaoModifiedTime();
+        long lastModifiedTime = 0;
         try {
+            lastModifiedTime = socketInfoRedis.getLastErTiJiaoModifiedTime();
             long startTime = DateTime.now().withTimeAtStartOfDay().getMillis();
             if (lastModifiedTime > startTime) {
                 log.info("lastModifiedTime:{}", lastModifiedTime);

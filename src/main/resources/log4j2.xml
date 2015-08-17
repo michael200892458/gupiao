@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="debug" strict="true" name="aspLog4jConfig" packages = "com.coohua.asp">
+    <Properties>
+        <Property name="logRootPath">${logDir}</Property>
+        <Property name = "accessLogFilePath">${logRootPath}/access.txt</Property>
+        <Property name="errorLogFilePath">${logRootPath}/error.txt</Property>
+        <Property name = "sysLogFilePath">${logRootPath}/sys.txt</Property>
+        <Property name = "logLevel">info</Property>
+        <Property name = "isBufferedIO">true</Property>
+        <Property name = "isImmediateFlush">true</Property>
+        <Property name = "isIgnoreExceptions">false</Property>
+        <Property name = "bufferSize">8192</Property>
+        <Property name = "encodingType">UTF-8</Property>
+        <Property name = "interval">15</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d[%p]%C{1}.%M(%L)|%m%n"/>
+        </Console>
+
+        <RollingRandomAccessFile  name = "accessLogAppender" fileName = "${accessLogFilePath}" filePattern = "${accessLogFilePath}.%d{yyyyMMddHH.mm}.%i.log.gz"
+                                  immediateFlush = "${isImmediateFlush}" ignoreExceptions = "${isIgnoreExceptions}" bufferSize="${bufferSize}" >
+            <PatternLayout>
+                <Pattern>%d[%p]%C{1}.%M(%L)|%m%n</Pattern>
+                <charset>${encodingType}</charset>
+            </PatternLayout>
+            <DefaultRolloverStrategy max="100"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="${interval}"/>
+                <SizeBasedTriggeringPolicy size="250 MB"/>
+            </Policies>
+        </RollingRandomAccessFile >
+        <Async name="asyncAccessLogAppender">
+            <AppenderRef ref="accessLogAppender"></AppenderRef>
+        </Async>
+
+        <RollingRandomAccessFile name = "errorLogAppender" fileName = "${errorLogFilePath}" filePattern = "${errorLogFilePath}.%d{yyyyMMddHH}.%i.log.gz"
+                                 immediateFlush = "${isImmediateFlush}" ignoreExceptions = "${isIgnoreExceptions}" bufferSize="${bufferSize}" >
+            <PatternLayout>
+                <Pattern>%d[%p]%C{1}.%M(%L)|%m%n</Pattern>
+                <charset>${encodingType}</charset>
+            </PatternLayout>
+            <DefaultRolloverStrategy max="100"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="250 MB"/>
+            </Policies>
+        </RollingRandomAccessFile>
+        <Async name="asyncErrorLogAppender">
+            <AppenderRef ref="errorLogAppender"></AppenderRef>
+        </Async>
+
+
+        <RollingRandomAccessFile name = "sysLogAppender" fileName = "${sysLogFilePath}" filePattern = "${sysLogFilePath}.%d{yyyyMMdd}.%i.log.gz"
+                                 immediateFlush = "${isImmediateFlush}" ignoreExceptions = "${isIgnoreExceptions}" bufferSize="${bufferSize}">
+            <PatternLayout>
+                <Pattern>%d[%p]%C{1}.%M(%L)|%m%n</Pattern>
+                <charset>${encodingType}</charset>
+            </PatternLayout>
+            <DefaultRolloverStrategy max="100"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="250 MB"/>
+            </Policies>
+        </RollingRandomAccessFile>
+        <Async name="asyncSysLogAppender">
+            <AppenderRef ref="sysLogAppender"></AppenderRef>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+
+        <Logger name="ROOT" level="${logLevel}" additivity="false">
+            <AppenderRef ref="STDOUT"></AppenderRef>
+        </Logger>
+        <Logger name = "accessLog" level="${logLevel}" additivity="false">
+            <AppenderRef ref="asyncAccessLogAppender"></AppenderRef>
+        </Logger>
+        <Logger name = "errorLog" level="${logLevel}" additivity="false">
+            <AppenderRef ref="errorLogAppender"></AppenderRef>
+        </Logger>
+        <Logger name = "sysLog" level="${logLevel}" additivity="false">
+            <AppenderRef ref="asyncSysLogAppender"></AppenderRef>
+        </Logger>
+    </Loggers>
+</Configuration>

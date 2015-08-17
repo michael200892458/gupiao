@@ -1,5 +1,6 @@
 package com.liubin.socket.mvc.compoent;
 
+import com.alibaba.fastjson.JSON;
 import com.liubin.socket.mvc.compoent.redis.SocketInfoRedis;
 import com.liubin.socket.pojo.SinaSocketInfo;
 import com.liubin.socket.pojo.SocketInfoObject;
@@ -29,14 +30,15 @@ public class SinaSocketFlushProcessor extends TimerTask {
     SingleInstanceContainer singleInstanceContainer;
 
     @PostConstruct
-    public void init(SocketInfoRedis socketInfoRedis) {
+    public void init() {
         this.socketInfoRedis = singleInstanceContainer.getSocketInfoRedis();
     }
 
     @Override
     public void run() {
-        long lastModifiedTime = socketInfoRedis.getLastSinaSocketLastModifiedTime();
+        long lastModifiedTime = 0;
         try {
+            lastModifiedTime = socketInfoRedis.getLastSinaSocketLastModifiedTime();
             DateTime now = DateTime.now();
             if (now.getDayOfWeek() > 5) {
                 return;
@@ -47,11 +49,17 @@ public class SinaSocketFlushProcessor extends TimerTask {
                 if (nowTimestamp - lastModifiedTime < 1000L*3600) {
                     log.info("the last modified time:{}", lastModifiedTime);
                 }
-            } else if (nowTimestamp < startTime || lastModifiedTime > startTime) {
+            } else if (nowTimestamp < startTime) {
+                log.info("the last modified time:{}", lastModifiedTime);
+                return;
+            } else if (nowTimestamp - lastModifiedTime < 12 * 3600 * 1000L) {
                 log.info("the last modified time:{}", lastModifiedTime);
                 return;
             }
-            socketInfoRedis.setLastErTiJiaoModifiedTime(nowTimestamp);
+//            if (nowTimestamp - lastModifiedTime < 3600 * 1000L) {
+//                return;
+//            }
+            socketInfoRedis.setLastSinaSocketLastModifiedTime(nowTimestamp);
             updateAllSocketsInfo();
             log.info("update sockInfo ok!");
         } catch (Exception e) {
@@ -72,6 +80,7 @@ public class SinaSocketFlushProcessor extends TimerTask {
                     endIdx = codes.size();
                 }
                 List<SinaSocketInfo> sinaSocketInfoList = SinaSocketUtils.getSinaSockets(codes.subList(startIdx, endIdx));
+                log.info("sinaSocketInfoList:{}", JSON.toJSONString(sinaSocketInfoList));
                 for (SinaSocketInfo sinaSocketInfo : sinaSocketInfoList) {
                     // 停牌的股票不处理
                     if (sinaSocketInfo.getCurrentPrice() == 0) {

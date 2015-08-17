@@ -173,5 +173,38 @@
     </dependencies>
     <build>
         <finalName>socket</finalName>
+        <filters>
+            <filter>src/main/filter/filter-${env}.properties</filter>
+        </filters>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*.xml</include>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
+    <profiles>
+        <profile>
+            <id>office</id>
+            <properties>
+                <env>office</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>liubin</id>
+            <properties>
+                <env>liubin</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <properties>
+                <env>release</env>
+            </properties>
+        </profile>
+    </profiles>
 </project>

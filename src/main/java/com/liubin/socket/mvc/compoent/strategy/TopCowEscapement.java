@@ -69,8 +69,9 @@ public class TopCowEscapement {
     }
 
     public void run() {
-        long lastModifiedTime = socketInfoRedis.getLastTopCowEscapementTime();
+        long lastModifiedTime = 0;
         try {
+            lastModifiedTime = socketInfoRedis.getLastTopCowEscapementTime();
             long startTime = System.currentTimeMillis();
             if (lastModifiedTime > startTime) {
                 log.info("lastModifiedTime:{}", lastModifiedTime);

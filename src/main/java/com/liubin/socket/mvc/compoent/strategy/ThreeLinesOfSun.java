@@ -66,18 +66,19 @@ public class ThreeLinesOfSun {
     }
 
     public void run() {
-        long lastModifiedTime = socketInfoRedis.getLastThreeLinesOfSunTime();
+        long lastModifiedTime = 0;
         try {
+            lastModifiedTime = socketInfoRedis.getLastThreeLinesOfSunTime();
             long startTime = DateTime.now().withTimeAtStartOfDay().getMillis();
             if (lastModifiedTime > startTime) {
                 log.info("lastModifiedTime:{}", lastModifiedTime);
                 return;
             }
-            socketInfoRedis.setLastThreeLinesOfSunTime(System.currentTimeMillis());
             DateTime now = DateTime.now();
             if (now.getHourOfDay() != 14 || now.getMinuteOfHour() < 48) {
                 return;
             }
+            socketInfoRedis.setLastThreeLinesOfSunTime(System.currentTimeMillis());
             List<String> codes = socketInfoRedis.getAllCodeList();
             List<String> validCodes = new ArrayList<String>();
             int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
