@@ -1,0 +1,20 @@
+package com.liubin.socket.pojo.proto;
+
+message SocketInfoField {
+    required int32 day = 1;
+}
+
+message SocketInfoValue {
+    required int32 openPrice = 1;
+    required int32 lastClosePrice = 2;
+    required int32 currentPrice = 3;
+    required int32 todayMaxPrice = 4;
+    required int32 todayMinPrice = 5;
+    required int32 volume = 6;
+    required int32 turnover = 7;
+    optional int32 avgPrice5 = 8;
+    optional int32 avgPrice10 = 9;
+    optional int32 avgPrice20 = 10;
+    optional int32 avgPrice30 = 11;
+    optional int32 avgPrice60 = 12;
+}
