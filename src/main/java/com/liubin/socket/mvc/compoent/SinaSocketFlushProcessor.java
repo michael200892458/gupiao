@@ -87,13 +87,17 @@ public class SinaSocketFlushProcessor extends TimerTask {
                         continue;
                     }
                     List<SocketInfoObject> socketInfoObjectList = socketInfoRedis.getSocketInfoObjectListByEndDay(sinaSocketInfo.getCode(), today - 1, 60);
+                    if (socketInfoObjectList == null) {
+                        errorLog.error("getSocketInfoObjectList error, code:{}", sinaSocketInfo.getCode());
+                        continue;
+                    }
                     SocketInfoObject socketInfoObject = SockInfoUtils.calcSocketInfObject(sinaSocketInfo, socketInfoObjectList);
                     socketInfoRedis.setSocketInfo(sinaSocketInfo.getCode(), socketInfoObject);
                 }
-                Thread.sleep(1000);
+                Thread.sleep(5000);
             }
         } catch (Exception e) {
-            errorLog.error(e);
+            errorLog.error("updateAllSocketsInfo error", e);
         }
     }
 }

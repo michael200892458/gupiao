@@ -36,6 +36,7 @@ public class SockInfoUtils {
         }
         if (socketInfoObjectList.size() >= 59) {
             int avg60 = sumPrice(socketInfoObjectList, 59) + sinaSocketInfo.getCurrentPrice() / 60;
+            nowSockInfoObject.setAvgPrice60(avg60);
         }
         return nowSockInfoObject;
     }

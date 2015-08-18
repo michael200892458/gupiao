@@ -75,13 +75,13 @@
             <AppenderRef ref="STDOUT"></AppenderRef>
         </Logger>
         <Logger name = "accessLog" level="${logLevel}" additivity="false">
-            <AppenderRef ref="asyncAccessLogAppender"></AppenderRef>
+            <AppenderRef ref="accessLogAppender"></AppenderRef>
         </Logger>
         <Logger name = "errorLog" level="${logLevel}" additivity="false">
             <AppenderRef ref="errorLogAppender"></AppenderRef>
         </Logger>
         <Logger name = "sysLog" level="${logLevel}" additivity="false">
-            <AppenderRef ref="asyncSysLogAppender"></AppenderRef>
+            <AppenderRef ref="sysLogAppender"></AppenderRef>
         </Logger>
     </Loggers>
 </Configuration>

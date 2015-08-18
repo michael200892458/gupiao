@@ -27,8 +27,8 @@ public class AppContext {
     @PostConstruct
     public void init() {
         try {
-            timer.schedule(sinaSocketFlushProcessor, 0, 1000 * 6);
-            timer.schedule(strategyManager, 0, 1000 * 6);
+            timer.schedule(sinaSocketFlushProcessor, 0, 1000 * 30);
+            timer.schedule(strategyManager, 0, 1000 * 30);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

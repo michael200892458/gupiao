@@ -23,8 +23,8 @@ import java.util.Map;
  */
 public class HttpUtils {
     public static RequestConfig requestConfig = RequestConfig.custom()
-            .setSocketTimeout(5000)
-            .setConnectTimeout(5000)
+            .setSocketTimeout(10000)
+            .setConnectTimeout(10000)
             .build();
 
 
