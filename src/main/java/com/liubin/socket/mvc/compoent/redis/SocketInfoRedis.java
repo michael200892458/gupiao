@@ -49,6 +49,14 @@ public class SocketInfoRedis {
         }
     }
 
+    public void delCode(String code) {
+        try {
+            redisClient.del(code);
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+    }
+
     public void setSocketInfo(String code, SocketInfoObject socketInfoObject) {
         try {
             SocketInfo.SocketInfoField field = ProtoUtils.toSocketInfoField(socketInfoObject.getDay());

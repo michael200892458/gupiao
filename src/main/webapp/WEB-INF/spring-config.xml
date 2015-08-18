@@ -6,6 +6,12 @@
     <context:annotation-config />
     <context:component-scan base-package="com.liubin.socket.mvc" />
 
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".jsp"/>
+        <property name="contentType" value="text/html; charset=utf-8"/>
+    </bean>
+
     <!-- response 编码配置-->
     <bean  class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" >
         <property name="messageConverters">

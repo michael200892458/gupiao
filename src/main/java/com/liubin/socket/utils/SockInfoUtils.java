@@ -15,6 +15,8 @@ public class SockInfoUtils {
         nowSockInfoObject.setDay(sinaSocketInfo.getDay());
         nowSockInfoObject.setCurrentPrice(sinaSocketInfo.getCurrentPrice());
         nowSockInfoObject.setOpenPrice(sinaSocketInfo.getOpenPrice());
+        nowSockInfoObject.setTodayMaxPrice(sinaSocketInfo.getTodayMaxPrice());
+        nowSockInfoObject.setTodayMinPrice(sinaSocketInfo.getTodayMinPrice());
         nowSockInfoObject.setLastClosePrice(sinaSocketInfo.getLastClosePrice());
         nowSockInfoObject.setVolume(sinaSocketInfo.getVolume());
         nowSockInfoObject.setTurnover(sinaSocketInfo.getTurnover());
