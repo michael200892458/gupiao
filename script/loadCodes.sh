@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 REDIS_BIN=redis-cli
 HOST=192.168.10.53
 PORT=6380
