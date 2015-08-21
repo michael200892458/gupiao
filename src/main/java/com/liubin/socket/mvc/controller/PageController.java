@@ -27,7 +27,9 @@ public class PageController {
     public String index(ModelMap modelMap) {
         try {
             List<RecommendCode> recommendCodes = socketService.getRecommendCodes();
+            List<String> selectCodes = socketService.getSelectedCodes();
             modelMap.addAttribute("recommendCodes", recommendCodes);
+            modelMap.addAttribute("selectedCodes", selectCodes);
         } catch (Exception e) {
             errorLog.error(e);
         }

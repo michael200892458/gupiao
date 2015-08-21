@@ -96,17 +96,64 @@
                 <div class="col-xs-12">
                     <div class="box">
                         <div class="box-header">
-                            <div class="box-body">
-                                <div class="row">
-                                    <div class="col-xs-9">
-                                        <input id="socketCode" type="text" class="form-control" placeholder="股票代码">
-                                    </div>
-                                    <div class="col-xs-3">
-                                        <button class="btn btn-primary" onclick="getSocketInfoObjects();">查询</button>
-                                    </div>
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <input id="selectedSocketCode" type="text" class="form-control" placeholder="股票代码">
+                                </div>
+                                <div class="col-xs-3">
+                                    <button class="btn btn-primary" onclick="addSelectedCode();">添加</button>
                                 </div>
                             </div>
                         </div>
+                        <div class="box-body table-responsive">
+                            <table id="selectedCodeTable" class="table table-bordered table-striped">
+                                <thead>
+                                <tr>
+                                    <th>股票代码</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <c:forEach items="${selectedCodes}" var="code">
+                                    <tr>
+                                        <td>${code}</td>
+                                        <td>
+                                            <button class="btn btn-info" onclick="getSocketInfoObjects('${code}');">查看</button>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                                <tr>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <%--k线图--%>
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-body" id="socketChart">
+                        </div>
+                    </div>
+                </div>
+                <%--end k线图--%>
+
+                <div class="col-xs-12">
+                    <div class="box">
+                        <%--<div class="box-header">--%>
+                            <%--<div class="box-body">--%>
+                                <%--<div class="row">--%>
+                                    <%--<div class="col-xs-9">--%>
+                                        <%--<input id="socketCode" type="text" class="form-control" placeholder="股票代码">--%>
+                                    <%--</div>--%>
+                                    <%--<div class="col-xs-3">--%>
+                                        <%--<button class="btn btn-primary" onclick="getSocketInfoObjects();">查询</button>--%>
+                                    <%--</div>--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
                         <div class="box-body table-responsive">
                             <table id="example1" class="table table-bordered table-striped">
                                 <thead>
@@ -117,6 +164,11 @@
                                     <th>最高价</th>
                                     <th>最低价</th>
                                     <th>成交量</th>
+                                    <th>5日均值</th>
+                                    <th>10日均值</th>
+                                    <th>20日均值</th>
+                                    <th>30日均值</th>
+                                    <th>60日均值</th>
                                 </tr>
                                 </thead>
                                 <tbody id="socketInfoContent">
@@ -127,6 +179,11 @@
                                     <td>9.2</td>
                                     <td>8.2</td>
                                     <td>10000</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
                                 </tr>
                                 </tbody>
                                 <tfoot>
@@ -137,6 +194,11 @@
                                     <th>最高价</th>
                                     <th>最低价</th>
                                     <th>成交量</th>
+                                    <th>5日均值</th>
+                                    <th>10日均值</th>
+                                    <th>20日均值</th>
+                                    <th>30日均值</th>
+                                    <th>60日均值</th>
                                 </tr>
                                 </tfoot>
                             </table>
@@ -247,11 +309,18 @@
 <script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
 <!-- AdminLTE App -->
 <script src="/js/AdminLTE/app.js" type="text/javascript"></script>
-
 <!-- page script -->
 <script type="text/javascript">
     $(function () {
         $("#example1").dataTable();
+        $("#selectedCodeTable").dataTable({
+            "bPaginate": true,
+            "bLengthChange": false,
+            "bFilter": false,
+            "bSort": true,
+            "bInfo": true,
+            "bAutoWidth": false
+        });
         $('#example2').dataTable({
             "bPaginate": true,
             "bLengthChange": false,
@@ -285,6 +354,28 @@
         });
     }
 
+    function addSelectedCode() {
+        var socketCode = $("#selectedSocketCode").val();
+        if (!socketCode) {
+            return;
+        }
+        $.ajax({
+            url: "/api/addSelectedCode",
+            type: "POST",
+            data: {
+                socketCode:socketCode
+            },
+            success: function(data) {
+                data = JSON.parse(data);
+                if (data.status == 0) {
+                    // 提示成功
+                } else {
+                    // 提示失败
+                }
+            }
+        });
+    }
+
     function delSocketCode() {
         var socketCode = $("#delSocketCode").val();
         if (!socketCode) {
@@ -308,12 +399,7 @@
         });
     }
 
-    function getSocketInfoObjects() {
-        var socketCode = $("#socketCode").val();
-        if (!socketCode) {
-            $("#socketCode").text("代码不能空");
-            return ;
-        }
+    function getSocketInfoObjects(socketCode) {
         $.ajax({
             url: "/api/getSocketInfoObjects",
             type: "POST",
@@ -323,6 +409,12 @@
             success: function(data) {
                 data = JSON.parse(data);
                 var content = "";
+                var days = [];
+                var avg5Value = [];
+                var avg10Value = [];
+                var avg20Value = [];
+                var avg30Value = [];
+                var avg60Value = [];
                 for(var i = 0; i < data.length; i++) {
                     content += "<tr>";
                     content += "<td>" + data[i]["day"] + "</td>";
@@ -331,7 +423,18 @@
                     content += "<td>" + data[i]["todayMaxPrice"]/100.0 + "</td>";
                     content += "<td>" + data[i]["todayMinPrice"]/100.0 + "</td>";
                     content += "<td>" + data[i]["volume"] + "</td>";
+                    content += "<td>" + data[i]["avgPrice5"]/100.0 + "</td>";
+                    content += "<td>" + data[i]["avgPrice10"]/100.0 + "</td>";
+                    content += "<td>" + data[i]["avgPrice20"]/100.0 + "</td>";
+                    content += "<td>" + data[i]["avgPrice30"]/100.0 + "</td>";
+                    content += "<td>" + data[i]["avgPrice60"]/100.0 + "</td>";
                     content += "</tr>";
+                    days[i] = data[i]["day"];
+                    avg5Value[i] = data[i]["avgPrice5"]/100.0;
+                    avg10Value[i] = data[i]["avgPrice10"]/100.0;
+                    avg20Value[i] = data[i]["avgPrice20"]/100.0;
+                    avg30Value[i] = data[i]["avgPrice30"]/100.0;
+                    avg60Value[i] = data[i]["avgPrice60"]/100.0;
                 }
                 $("#socketInfoContent").html(content);
             }

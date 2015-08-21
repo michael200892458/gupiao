@@ -40,6 +40,27 @@ public class SocketInfoRedis {
         return codes;
     }
 
+    public List<String> getSelectedCodeList() {
+        List<String> codes = new ArrayList<String>();
+        try {
+            Map<String, String> valueMap = redisClient.hgetAll(CommonConstants.SELECTED_CODE_LIST_REDIS_KEY);
+            for (Map.Entry<String, String> entry : valueMap.entrySet()) {
+                codes.add(entry.getKey());
+            }
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return codes;
+    }
+
+    public void addSelectedCode(String code) {
+        try {
+            redisClient.hset(CommonConstants.SELECTED_CODE_LIST_REDIS_KEY, code, "1");
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+    }
+
     public void addCode(String code) {
         try {
             int timestamp = (int)(System.currentTimeMillis()/1000);
@@ -47,6 +68,18 @@ public class SocketInfoRedis {
         } catch (Exception e) {
             errorLog.error(e);
         }
+    }
+
+    public boolean isExist(String code) {
+        try {
+            String ret = redisClient.hget(CommonConstants.CODE_LIST_REDIS_KEY, code);
+            if (ret != null) {
+                return true;
+            }
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return false;
     }
 
     public void delCode(String code) {

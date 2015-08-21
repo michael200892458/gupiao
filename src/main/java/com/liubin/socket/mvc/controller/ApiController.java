@@ -42,6 +42,22 @@ public class ApiController {
         return JSON.toJSONString(statusResult);
     }
 
+    @RequestMapping("/addSelectedCode")
+    @ResponseBody
+    public String addSelectedCode() {
+        StatusResult statusResult = new StatusResult();
+        try {
+            String socketCode = request.getParameter("socketCode");
+            if (!socketService.addSelectedCode(socketCode)) {
+                statusResult.setStatus(1);
+                statusResult.setMessage("添加失败");
+            }
+        } catch (Exception e) {
+            statusResult.setStatus(1);
+        }
+        return JSON.toJSONString(statusResult);
+    }
+
     @RequestMapping("/delSocketCode")
     @ResponseBody
     public String delSocketCode() {

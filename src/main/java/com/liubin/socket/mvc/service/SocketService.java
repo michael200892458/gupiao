@@ -7,6 +7,7 @@ import com.liubin.socket.pojo.RecommendCode;
 import com.liubin.socket.pojo.SocketInfoObject;
 import com.liubin.socket.utils.CommonConstants;
 import com.liubin.socket.utils.LogUtils;
+import com.sun.org.apache.bcel.internal.classfile.Code;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -36,12 +37,36 @@ public class SocketService {
         socketInfoRedis = singleInstanceContainer.getSocketInfoRedis();
     }
 
-    public boolean addSocketCode(String code) {
+    public boolean addSelectedCode(String code) {
         try {
-            if(!StringUtils.startsWith(code, "sh") && !StringUtils.startsWith(code, "sz")) {
+            if (!checkCode(code)) {
                 return false;
             }
-            if (StringUtils.length(code) != 8) {
+            if (!socketInfoRedis.isExist(code)) {
+                return false;
+            }
+            socketInfoRedis.addSelectedCode(code);
+            return true;
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return false;
+    }
+
+    public List<String> getSelectedCodes() {
+        List<String> codes = new ArrayList<String>();
+        try {
+            codes = socketInfoRedis.getSelectedCodeList();
+            return codes;
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return codes;
+    }
+
+    public boolean addSocketCode(String code) {
+        try {
+            if(!checkCode(code)) {
                 return false;
             }
             socketInfoRedis.addCode(code);
@@ -109,5 +134,15 @@ public class SocketService {
             }
             retMap.put(code, stringBuilder.toString());
         }
+    }
+
+    protected boolean checkCode(String code) {
+        if(!StringUtils.startsWith(code, "sh") && !StringUtils.startsWith(code, "sz")) {
+            return false;
+        }
+        if (StringUtils.length(code) != 8) {
+            return false;
+        }
+        return true;
     }
 }

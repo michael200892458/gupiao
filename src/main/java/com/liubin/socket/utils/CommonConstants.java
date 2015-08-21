@@ -10,6 +10,7 @@ public class CommonConstants {
     public static final String HTTP_METHOD_GET = "get";
     public static final String HTTP_METHOD_POST = "post";
 
+    public static final String SELECTED_CODE_LIST_REDIS_KEY = "selectedCodeList";
     public static final String CODE_LIST_REDIS_KEY = "codeList";
     public static final String LAST_SINA_SOCKET_MODIFIED_TIME_REDIS_KEY = "lastSinaSocketModifiedTime";
     public static final String LAST_ER_TI_JIAO_MODIFIED_TIME_REDIS_KEY = "lastErTiJiaoModifiedTime";
