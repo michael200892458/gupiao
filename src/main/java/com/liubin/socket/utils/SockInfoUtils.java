@@ -21,23 +21,23 @@ public class SockInfoUtils {
         nowSockInfoObject.setVolume(sinaSocketInfo.getVolume());
         nowSockInfoObject.setTurnover(sinaSocketInfo.getTurnover());
         if (socketInfoObjectList.size() >= 4) {
-            int avg5 = sumPrice(socketInfoObjectList, 4) + sinaSocketInfo.getCurrentPrice() / 5;
+            int avg5 = (sumPrice(socketInfoObjectList, 4) + sinaSocketInfo.getCurrentPrice()) / 5;
             nowSockInfoObject.setAvgPrice5(avg5);
         }
         if (socketInfoObjectList.size() >= 9) {
-            int avg10 = sumPrice(socketInfoObjectList, 9) + sinaSocketInfo.getCurrentPrice() / 10;
+            int avg10 = (sumPrice(socketInfoObjectList, 9) + sinaSocketInfo.getCurrentPrice()) / 10;
             nowSockInfoObject.setAvgPrice10(avg10);
         }
         if (socketInfoObjectList.size() >= 19) {
-            int avg20 = sumPrice(socketInfoObjectList, 19) + sinaSocketInfo.getCurrentPrice() / 20;
+            int avg20 = (sumPrice(socketInfoObjectList, 19) + sinaSocketInfo.getCurrentPrice()) / 20;
             nowSockInfoObject.setAvgPrice20(avg20);
         }
         if (socketInfoObjectList.size() >= 29) {
-            int avg30 = sumPrice(socketInfoObjectList, 29) + sinaSocketInfo.getCurrentPrice() / 30;
+            int avg30 = (sumPrice(socketInfoObjectList, 29) + sinaSocketInfo.getCurrentPrice()) / 30;
             nowSockInfoObject.setAvgPrice30(avg30);
         }
         if (socketInfoObjectList.size() >= 59) {
-            int avg60 = sumPrice(socketInfoObjectList, 59) + sinaSocketInfo.getCurrentPrice() / 60;
+            int avg60 = (sumPrice(socketInfoObjectList, 59) + sinaSocketInfo.getCurrentPrice()) / 60;
             nowSockInfoObject.setAvgPrice60(avg60);
         }
         return nowSockInfoObject;
