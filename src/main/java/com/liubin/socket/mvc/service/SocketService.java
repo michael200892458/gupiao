@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.liubin.socket.mvc.compoent.SingleInstanceContainer;
 import com.liubin.socket.mvc.compoent.redis.SocketInfoRedis;
 import com.liubin.socket.pojo.RecommendCode;
+import com.liubin.socket.pojo.SocketCode;
 import com.liubin.socket.pojo.SocketInfoObject;
 import com.liubin.socket.utils.CommonConstants;
 import com.liubin.socket.utils.LogUtils;
@@ -53,15 +54,46 @@ public class SocketService {
         return false;
     }
 
-    public List<String> getSelectedCodes() {
-        List<String> codes = new ArrayList<String>();
+    public boolean delSelectedCode(String code) {
         try {
-            codes = socketInfoRedis.getSelectedCodeList();
-            return codes;
+            if (!checkCode(code)) {
+                return false;
+            }
+            socketInfoRedis.delSelectedCode(code);
+            return true;
         } catch (Exception e) {
             errorLog.error(e);
         }
-        return codes;
+        return true;
+    }
+
+    public boolean clearOutOfDateCode(String code) {
+        try {
+            if (!checkCode(code)) {
+                return false;
+            }
+            socketInfoRedis.clearOutOfDateSocketInfoObject(code);
+            return true;
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return false;
+    }
+
+    public List<SocketCode> getSelectedCodes() {
+        List<SocketCode> socketCodes = new ArrayList<SocketCode>();
+        try {
+            List<String> codes = socketInfoRedis.getSelectedCodeList();
+            for (String code : codes) {
+                SocketCode socketCode = socketInfoRedis.getSocketCode(code);
+                if (socketCode != null) {
+                    socketCodes.add(socketCode);
+                }
+            }
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return socketCodes;
     }
 
     public boolean addSocketCode(String code) {
@@ -69,7 +101,7 @@ public class SocketService {
             if(!checkCode(code)) {
                 return false;
             }
-            socketInfoRedis.addCode(code);
+            socketInfoRedis.addCode(code, "1");
             return true;
         } catch (Exception e) {
             errorLog.error(e);

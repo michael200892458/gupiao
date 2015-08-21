@@ -110,15 +110,18 @@
                                 <thead>
                                 <tr>
                                     <th>股票代码</th>
+                                    <th>股票名称</th>
                                     <th>操作</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <c:forEach items="${selectedCodes}" var="code">
                                     <tr>
-                                        <td>${code}</td>
+                                        <td>${code.socketCode}</td>
+                                        <td>${code.name}</td>
                                         <td>
-                                            <button class="btn btn-info" onclick="getSocketInfoObjects('${code}');">查看</button>
+                                            <button class="btn btn-info" onclick="getSocketInfoObjects('${code.socketCode}');">查看</button>
+                                            <button class="btn btn-info" onclick="delSelectedCode('${code.socketCode}');">删除</button>
                                         </td>
                                     </tr>
                                 </c:forEach>
@@ -313,14 +316,6 @@
 <script type="text/javascript">
     $(function () {
         $("#example1").dataTable();
-        $("#selectedCodeTable").dataTable({
-            "bPaginate": true,
-            "bLengthChange": false,
-            "bFilter": false,
-            "bSort": true,
-            "bInfo": true,
-            "bAutoWidth": false
-        });
         $('#example2').dataTable({
             "bPaginate": true,
             "bLengthChange": false,
@@ -371,6 +366,28 @@
                     // 提示成功
                 } else {
                     // 提示失败
+                }
+            }
+        });
+    }
+
+    function delSelectedCode(code) {
+        var socketCode = code;
+        if (!socketCode) {
+            return;
+        }
+        $.ajax({
+            url: "/api/delSelectedCode",
+            type: "POST",
+            data: {
+                socketCode: socketCode
+            },
+            success: function (data) {
+                data = JSON.parse(data);
+                if (data.status == 0) {
+                    // 提示成功
+                } else {
+                    //提示失败
                 }
             }
         });

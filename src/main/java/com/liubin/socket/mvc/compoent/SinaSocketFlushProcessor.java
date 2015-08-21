@@ -93,6 +93,7 @@ public class SinaSocketFlushProcessor extends TimerTask {
                     }
                     SocketInfoObject socketInfoObject = SockInfoUtils.calcSocketInfObject(sinaSocketInfo, socketInfoObjectList);
                     socketInfoRedis.setSocketInfo(sinaSocketInfo.getCode(), socketInfoObject);
+                    socketInfoRedis.addCode(sinaSocketInfo.getCode(), sinaSocketInfo.getName());
                 }
                 Thread.sleep(5000);
             }

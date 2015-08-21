@@ -2,6 +2,7 @@ package com.liubin.socket.mvc.controller;
 
 import com.liubin.socket.mvc.service.SocketService;
 import com.liubin.socket.pojo.RecommendCode;
+import com.liubin.socket.pojo.SocketCode;
 import com.liubin.socket.utils.LogUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class PageController {
     public String index(ModelMap modelMap) {
         try {
             List<RecommendCode> recommendCodes = socketService.getRecommendCodes();
-            List<String> selectCodes = socketService.getSelectedCodes();
+            List<SocketCode> selectCodes = socketService.getSelectedCodes();
             modelMap.addAttribute("recommendCodes", recommendCodes);
             modelMap.addAttribute("selectedCodes", selectCodes);
         } catch (Exception e) {

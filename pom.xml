@@ -191,6 +191,35 @@
                 </includes>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>make</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>socket</finalName>
+                            <formats>
+                                <format>jar</format>
+                            </formats>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.maven.plugin</groupId>
+                <artifactId>emma-maven-plugin</artifactId>
+                <version>1.2</version>
+            </plugin>
+        </plugins>
     </build>
     <profiles>
         <profile>

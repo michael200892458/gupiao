@@ -51,7 +51,7 @@ public class SinaSocketInfoParser {
             double currentPrice = Double.parseDouble(StringUtils.trim(subTokens[3]));
             double todayMaxPrice = Double.parseDouble(StringUtils.trim(subTokens[4]));
             double todayMinPrice = Double.parseDouble(StringUtils.trim(subTokens[5]));
-            int volume = Integer.parseInt(StringUtils.trim(subTokens[8]));
+            long volume = Long.parseLong(StringUtils.trim(subTokens[8]));
             double turnover = Double.parseDouble(StringUtils.trim(subTokens[9]));
             SinaSocketInfo sinaSocketInfo = new SinaSocketInfo();
             sinaSocketInfo.setCode(code);
@@ -61,9 +61,10 @@ public class SinaSocketInfoParser {
             sinaSocketInfo.setCurrentPrice((int)(100*currentPrice));
             sinaSocketInfo.setTodayMaxPrice((int)(100*todayMaxPrice));
             sinaSocketInfo.setTodayMinPrice((int)(100*todayMinPrice));
-            sinaSocketInfo.setVolume(volume);
+            sinaSocketInfo.setVolume((int)(volume/100));
             sinaSocketInfo.setTurnover((int)(turnover/10000));
             sinaSocketInfo.setDay(day);
+            sinaSocketInfo.setName(name);
             if (openPrice == 0) {
                 return null;
             }

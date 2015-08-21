@@ -58,6 +58,38 @@ public class ApiController {
         return JSON.toJSONString(statusResult);
     }
 
+    @RequestMapping("/delSelectedCode")
+    @ResponseBody
+    public String delSelectedCode() {
+        StatusResult statusResult = new StatusResult();
+        try {
+            String socketCode = request.getParameter("socketCode");
+            if (!socketService.delSelectedCode(socketCode)) {
+                statusResult.setStatus(1);
+                statusResult.setMessage("删除失败");
+            }
+        } catch (Exception e) {
+            statusResult.setStatus(1);
+        }
+        return JSON.toJSONString(statusResult);
+    }
+
+    @RequestMapping("/clearOutOfDateSocketInfo")
+    @ResponseBody
+    public String clearOutOfDateSocketInfo() {
+        StatusResult statusResult = new StatusResult();
+        try {
+            String socketCode = request.getParameter("socketCode");
+            if (!socketService.clearOutOfDateCode(socketCode)) {
+                statusResult.setStatus(1);
+                statusResult.setMessage("清除失败");
+            }
+        } catch (Exception e) {
+            statusResult.setStatus(1);
+        }
+        return JSON.toJSONString(statusResult);
+    }
+
     @RequestMapping("/delSocketCode")
     @ResponseBody
     public String delSocketCode() {

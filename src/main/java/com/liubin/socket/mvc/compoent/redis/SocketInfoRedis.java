@@ -2,6 +2,7 @@ package com.liubin.socket.mvc.compoent.redis;
 
 import com.alibaba.fastjson.JSON;
 import com.coohua.redis.lib.RedisClient;
+import com.liubin.socket.pojo.SocketCode;
 import com.liubin.socket.pojo.SocketInfoObject;
 import com.liubin.socket.pojo.proto.SocketInfo;
 import com.liubin.socket.utils.CommonConstants;
@@ -9,6 +10,7 @@ import com.liubin.socket.utils.LogUtils;
 import com.liubin.socket.utils.ProtoUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.DateTime;
 import redis.clients.jedis.JedisPool;
 
 import java.util.*;
@@ -40,6 +42,18 @@ public class SocketInfoRedis {
         return codes;
     }
 
+    public SocketCode getSocketCode(String code) {
+        try {
+            SocketCode socketCode = new SocketCode();
+            socketCode.setSocketCode(code);
+            socketCode.setName(redisClient.hget(CommonConstants.CODE_LIST_REDIS_KEY, code));
+            return socketCode;
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return null;
+    }
+
     public List<String> getSelectedCodeList() {
         List<String> codes = new ArrayList<String>();
         try {
@@ -61,10 +75,18 @@ public class SocketInfoRedis {
         }
     }
 
-    public void addCode(String code) {
+    public void delSelectedCode(String code) {
+        try {
+            redisClient.hdel(CommonConstants.SELECTED_CODE_LIST_REDIS_KEY, code);
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+    }
+
+    public void addCode(String code, String name) {
         try {
             int timestamp = (int)(System.currentTimeMillis()/1000);
-            redisClient.hset(CommonConstants.CODE_LIST_REDIS_KEY, code, String.valueOf(timestamp));
+            redisClient.hset(CommonConstants.CODE_LIST_REDIS_KEY, code, name);
         } catch (Exception e) {
             errorLog.error(e);
         }
@@ -159,6 +181,28 @@ public class SocketInfoRedis {
             return socketInfoObjects;
         }
         return socketInfoObjects.subList(0, num);
+    }
+
+    public void clearOutOfDateSocketInfoObject(String code) {
+        try {
+            Map<byte[], byte[]> valueMap = redisClient.hgetAll(code.getBytes());
+            if (valueMap == null) {
+                return;
+            }
+            List<byte[]> needDelFields = new ArrayList<byte[]>();
+            int endDay = Integer.parseInt(DateTime.now().minusDays(CommonConstants.SAVE_SOCKET_DAYS).toString(CommonConstants.DAY_FORMATTER));
+            for (Map.Entry<byte[], byte[]> entry : valueMap.entrySet()) {
+                SocketInfo.SocketInfoField socketInfoField = SocketInfo.SocketInfoField.parseFrom(entry.getKey());
+                if (socketInfoField.getDay() < endDay) {
+                    needDelFields.add(entry.getKey());
+                }
+            }
+            if (needDelFields.size() > 0) {
+                redisClient.hdel(code.getBytes(), needDelFields);
+            }
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
     }
 
     public void set(String key, String value) {

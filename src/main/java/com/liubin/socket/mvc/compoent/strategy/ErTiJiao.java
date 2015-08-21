@@ -51,7 +51,8 @@ public class ErTiJiao {
                 && nowSocketInfoObject.getAvgPrice5() > nowSocketInfoObject.getAvgPrice10()
                 && nowSocketInfoObject.getAvgPrice10() > nowSocketInfoObject.getAvgPrice20()
                 && nowSocketInfoObject.getAvgPrice20() > nowSocketInfoObject.getAvgPrice30()
-                && nowSocketInfoObject.getAvgPrice30() > nowSocketInfoObject.getAvgPrice60()) {
+                && nowSocketInfoObject.getAvgPrice30() > nowSocketInfoObject.getAvgPrice60()
+                && nowSocketInfoObject.getAvgPrice60() > 0) {
             return true;
         }
         return false;

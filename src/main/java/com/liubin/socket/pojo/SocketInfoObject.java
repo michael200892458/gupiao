@@ -4,6 +4,7 @@ package com.liubin.socket.pojo;
  * Created by liubin on 2015/8/14.
  */
 public class SocketInfoObject {
+    private String name;
     private int day;
     private int openPrice;
     private int lastClosePrice;
@@ -17,6 +18,14 @@ public class SocketInfoObject {
     private int avgPrice20;
     private int avgPrice30;
     private int avgPrice60;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public int getDay() {
         return day;

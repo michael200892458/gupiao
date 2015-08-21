@@ -21,6 +21,7 @@ public class CommonConstants {
     public static final String TOP_COW_ESCAPEMENT_CODES_REDIS_KEY = "topCowEscapementCodes";
     public static final String SINA_SOCKET_URL_PREFIX = "http://hq.sinajs.cn/list=";
     public static final int CODES_NUM_PER_REQUEST = 100;
+    public static final int SAVE_SOCKET_DAYS = 365*4;
 
     public static DateTimeFormatter DAY_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
 }
