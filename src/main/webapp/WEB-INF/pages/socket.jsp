@@ -137,7 +137,7 @@
                 <%--k线图--%>
                 <div class="col-xs-12">
                     <div class="box">
-                        <div class="box-body" id="socketChart" style="height:400px">
+                        <div class="box-body" id="socketChart" style="height:600px">
                         </div>
                     </div>
                 </div>
@@ -528,6 +528,8 @@
                 var avg60Value = [];
                 var kLineData = [];
                 var n = data.length;
+                var minValue = 100000;
+                var maxValue = 0;
                 for(var i = 0; i < data.length; i++) {
                     content += "<tr>";
                     content += "<td>" + data[i]["day"] + "</td>";
@@ -549,7 +551,18 @@
                     avg30Value[n - i - 1] = data[i]["avgPrice30"]/100.0;
                     avg60Value[n - i - 1] = data[i]["avgPrice60"]/100.0;
                     kLineData[n - i - 1] = [data[i]["openPrice"]/100.0, data[i]["currentPrice"]/100.0, data[i]["todayMinPrice"]/100.0, data[i]["todayMaxPrice"]/100.0];
+                    if (minValue > data[i]["todayMinPrice"]/100.0) {
+                        minValue = data[i]["todayMinPrice"]/100.0;
+                    }
+                    if (maxValue < data[i]["todayMaxPrice"]/100.0) {
+                        maxValue = data[i]["todayMaxPrice"]/100.0;
+                    }
                 }
+                if (maxValue < minValue) {
+                    maxValue = minValue + 1;
+                }
+                maxValue = maxValue*1.05;
+                minValue = minValue*0.95;
                 $("#socketInfoContent").html(content);
                 var option = {
                     title : {
@@ -561,6 +574,16 @@
                             type : 'category',
                             boundaryGap : false,
                             data : days
+                        }
+                    ],
+                    yAxis : [
+                        {
+                            type : 'value',
+                            axisLabel : {
+                                formatter: '{value} 元'
+                            },
+                            min : minValue,
+                            max : maxValue
                         }
                     ],
                     series : [

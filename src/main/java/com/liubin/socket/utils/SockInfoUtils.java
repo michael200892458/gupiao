@@ -44,7 +44,7 @@ public class SockInfoUtils {
     }
 
     public static int sumPrice(List<SocketInfoObject> socketInfoObjectList, int num) {
-        if (num < socketInfoObjectList.size()) {
+        if (socketInfoObjectList.size() < num) {
             return 0;
         }
         int sum = 0;
