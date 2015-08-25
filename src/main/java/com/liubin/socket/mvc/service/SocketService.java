@@ -86,6 +86,7 @@ public class SocketService {
                 return false;
             }
             socketInfoRedis.clearInvalidSocketInfoObject(code);
+            return true;
         } catch (Exception e) {
             errorLog.error(e);
         }
