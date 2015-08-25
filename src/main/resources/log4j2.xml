@@ -19,7 +19,7 @@
             <PatternLayout pattern="%d[%p]%C{1}.%M(%L)|%m%n"/>
         </Console>
 
-        <RollingRandomAccessFile  name = "accessLogAppender" fileName = "${accessLogFilePath}" filePattern = "${accessLogFilePath}.%d{yyyyMMddHH.mm}.%i.log.gz"
+        <RollingRandomAccessFile  name = "accessLogAppender" fileName = "${accessLogFilePath}" filePattern = "${accessLogFilePath}.%d{yyyyMMdd}.%i.log.gz"
                                   immediateFlush = "${isImmediateFlush}" ignoreExceptions = "${isIgnoreExceptions}" bufferSize="${bufferSize}" >
             <PatternLayout>
                 <Pattern>%d[%p]%C{1}.%M(%L)|%m%n</Pattern>
@@ -35,7 +35,7 @@
             <AppenderRef ref="accessLogAppender"></AppenderRef>
         </Async>
 
-        <RollingRandomAccessFile name = "errorLogAppender" fileName = "${errorLogFilePath}" filePattern = "${errorLogFilePath}.%d{yyyyMMddHH}.%i.log.gz"
+        <RollingRandomAccessFile name = "errorLogAppender" fileName = "${errorLogFilePath}" filePattern = "${errorLogFilePath}.%d{yyyyMMdd}.%i.log.gz"
                                  immediateFlush = "${isImmediateFlush}" ignoreExceptions = "${isIgnoreExceptions}" bufferSize="${bufferSize}" >
             <PatternLayout>
                 <Pattern>%d[%p]%C{1}.%M(%L)|%m%n</Pattern>

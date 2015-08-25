@@ -80,6 +80,67 @@ public class SocketService {
         return false;
     }
 
+    public boolean clearInvalidSocketInfo(String code) {
+        try {
+            if (!checkCode(code)) {
+                return false;
+            }
+            socketInfoRedis.clearInvalidSocketInfoObject(code);
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return false;
+    }
+
+    public void calcAvgValue(String code) {
+        try {
+            if (!checkCode(code)) {
+                return;
+            }
+            List<SocketInfoObject> socketInfoObjectList = socketInfoRedis.getAllSocketInfoObject(code);
+            if (socketInfoObjectList.size() < 5) {
+                return;
+            }
+            int n = socketInfoObjectList.size();
+            SocketInfoObject[] socketInfoObjects = new SocketInfoObject[n];
+            int[] sumPrice = new int[n];
+            int sumValue = 0;
+            for (int i = n - 1; i >= 0; i--) {
+                socketInfoObjects[ n - i - 1] = socketInfoObjectList.get(i);
+                sumValue += socketInfoObjectList.get(i).getCurrentPrice();
+                sumPrice[n - i - 1] = sumValue;
+            }
+            for (int i = 5 ; i < n; i++) {
+                int sum5Value = sumPrice[i] - sumPrice[i - 5];
+                int sum10Value = 0;
+                int sum20Value = 0;
+                int sum30Value = 0;
+                int sum60Value = 0;
+                if (i >= 10) {
+                    sum10Value = sumPrice[i] - sumPrice[i - 10];
+                }
+                if (i >= 20) {
+                    sum20Value = sumPrice[i] - sumPrice[i - 20];
+                }
+                if (i >= 30) {
+                    sum30Value = sumPrice[i] - sumPrice[i - 30];
+                }
+                if (i >= 60) {
+                    sum60Value = sumPrice[i] - sumPrice[i - 60];
+                }
+                SocketInfoObject socketInfoObject = socketInfoObjects[i];
+                socketInfoObject.setAvgPrice5(sum5Value/5);
+                socketInfoObject.setAvgPrice10(sum10Value/10);
+                socketInfoObject.setAvgPrice20(sum20Value/20);
+                socketInfoObject.setAvgPrice30(sum30Value/30);
+                socketInfoObject.setAvgPrice60(sum60Value/60);
+                socketInfoRedis.setSocketInfo(code, socketInfoObject);
+            }
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+    }
+
     public List<SocketCode> getSelectedCodes() {
         List<SocketCode> socketCodes = new ArrayList<SocketCode>();
         try {
@@ -121,7 +182,7 @@ public class SocketService {
         List<SocketInfoObject> socketInfoObjects = new ArrayList<SocketInfoObject>();
         try {
             int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
-            socketInfoObjects = socketInfoRedis.getSocketInfoObjectListByEndDay(code, day, 60);
+            socketInfoObjects = socketInfoRedis.getSocketInfoObjectListByEndDay(code, day, 90);
         } catch (Exception e) {
             errorLog.error(e);
         }

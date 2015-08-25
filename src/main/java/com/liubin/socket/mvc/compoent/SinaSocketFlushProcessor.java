@@ -44,21 +44,25 @@ public class SinaSocketFlushProcessor extends TimerTask {
                 return;
             }
             long nowTimestamp = System.currentTimeMillis();
-            long startTime = now.withHourOfDay(15).getMillis();
-            if (now.getHourOfDay() == 14 && now.getMinuteOfHour() >= 40) {
-                if (nowTimestamp - lastModifiedTime < 1000L*3600) {
-                    log.info("the last modified time:{}", lastModifiedTime);
-                }
-            } else if (nowTimestamp < startTime) {
-                log.info("the last modified time:{}", lastModifiedTime);
-                return;
-            } else if (nowTimestamp - lastModifiedTime < 12 * 3600 * 1000L) {
+            if (nowTimestamp - lastModifiedTime < 1000L * 600) {
                 log.info("the last modified time:{}", lastModifiedTime);
                 return;
             }
-//            if (nowTimestamp - lastModifiedTime < 3600 * 1000L) {
-//                return;
-//            }
+            DateTime amOpenTime = now.withHourOfDay(9).withMinuteOfHour(30);
+            DateTime amCloseTime = now.withHourOfDay(11).withMinuteOfHour(30);
+            DateTime pmOpenTime = now.withHourOfDay(13).withMinuteOfHour(00);
+            DateTime pmCloseTime = now.withHourOfDay(15).withMinuteOfHour(11);
+            boolean needUpdate = false;
+            if (nowTimestamp >= amOpenTime.getMillis() && nowTimestamp <= amCloseTime.getMillis()
+                    || nowTimestamp >= pmOpenTime.getMillis() && nowTimestamp <= pmCloseTime.getMillis()) {
+                needUpdate = true;
+            } else if (nowTimestamp > pmCloseTime.getMillis() && nowTimestamp - lastModifiedTime < 3600 * 6 * 1000L) {
+                needUpdate = true;
+            }
+            if (!needUpdate) {
+                log.info("the last modified time:{}", lastModifiedTime);
+                 return;
+            }
             socketInfoRedis.setLastSinaSocketLastModifiedTime(nowTimestamp);
             updateAllSocketsInfo();
             log.info("update sockInfo ok!");

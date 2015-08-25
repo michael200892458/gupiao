@@ -65,7 +65,7 @@ public class SinaSocketInfoParser {
             sinaSocketInfo.setTurnover((int)(turnover/10000));
             sinaSocketInfo.setDay(day);
             sinaSocketInfo.setName(name);
-            if (openPrice == 0) {
+            if (openPrice == 0 || volume == 0) {
                 return null;
             }
             return sinaSocketInfo;

@@ -46,6 +46,7 @@ public class SocketInfoRedis {
         try {
             SocketCode socketCode = new SocketCode();
             socketCode.setSocketCode(code);
+//            socketCode.setName(new String(redisClient.hget(CommonConstants.CODE_LIST_REDIS_KEY, code).getBytes("gbk"), "utf-8"));
             socketCode.setName(redisClient.hget(CommonConstants.CODE_LIST_REDIS_KEY, code));
             return socketCode;
         } catch (Exception e) {
@@ -151,6 +152,32 @@ public class SocketInfoRedis {
         return socketInfoObjects;
     }
 
+    public List<SocketInfoObject> getAllSocketInfoObject(String code) {
+        List<SocketInfoObject> socketInfoObjects = new ArrayList<SocketInfoObject>();
+        try {
+            Map<byte[], byte[]> valueMap = redisClient.hgetAll(code.getBytes());
+            if (valueMap == null) {
+                return socketInfoObjects;
+            }
+            for (Map.Entry<byte[], byte[]> entry : valueMap.entrySet()) {
+                SocketInfo.SocketInfoField socketInfoField = SocketInfo.SocketInfoField.parseFrom(entry.getKey());
+                SocketInfo.SocketInfoValue socketInfoValue = SocketInfo.SocketInfoValue.parseFrom(entry.getValue());
+                SocketInfoObject socketInfoObject = ProtoUtils.toSockInfoObject(socketInfoField, socketInfoValue);
+                socketInfoObjects.add(socketInfoObject);
+            }
+            Collections.sort(socketInfoObjects, new Comparator<SocketInfoObject>() {
+                @Override
+                public int compare(SocketInfoObject o1, SocketInfoObject o2) {
+                    // 从大到小排序
+                    return o2.getDay() - o1.getDay();
+                }
+            });
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return socketInfoObjects;
+    }
+
     public List<SocketInfoObject> getSocketInfoObjectListByEndDay(String code, int endDay, int num) {
         List<SocketInfoObject> socketInfoObjects = new ArrayList<SocketInfoObject>();
         try {
@@ -194,6 +221,28 @@ public class SocketInfoRedis {
             for (Map.Entry<byte[], byte[]> entry : valueMap.entrySet()) {
                 SocketInfo.SocketInfoField socketInfoField = SocketInfo.SocketInfoField.parseFrom(entry.getKey());
                 if (socketInfoField.getDay() < endDay) {
+                    needDelFields.add(entry.getKey());
+                }
+            }
+            if (needDelFields.size() > 0) {
+                redisClient.hdel(code.getBytes(), needDelFields);
+            }
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+    }
+
+    public void clearInvalidSocketInfoObject(String code) {
+        try {
+            Map<byte[], byte[]> valueMap = redisClient.hgetAll(code.getBytes());
+            if (valueMap == null) {
+                return;
+            }
+            List<byte[]> needDelFields = new ArrayList<byte[]>();
+            for (Map.Entry<byte[], byte[]> entry : valueMap.entrySet()) {
+                SocketInfo.SocketInfoField socketInfoField = SocketInfo.SocketInfoField.parseFrom(entry.getKey());
+                SocketInfo.SocketInfoValue socketInfoValue = SocketInfo.SocketInfoValue.parseFrom(entry.getValue());
+                if (socketInfoValue.getVolume() == 0) {
                     needDelFields.add(entry.getKey());
                 }
             }

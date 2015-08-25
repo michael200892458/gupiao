@@ -115,4 +115,32 @@ public class ApiController {
         }
         return JSON.toJSONString(socketInfoObjectList);
     }
+
+    @RequestMapping("/clearInvalidSocketInfo")
+    @ResponseBody
+    public String clearInvalidSocketInfo() {
+        StatusResult statusResult = new StatusResult();
+        try {
+            String socketCode = request.getParameter("socketCode");
+            if(!socketService.clearInvalidSocketInfo(socketCode)) {
+               statusResult.setStatus(1);
+            }
+        } catch (Exception e) {
+            statusResult.setStatus(1);
+        }
+        return JSON.toJSONString(statusResult);
+    }
+
+    @RequestMapping("/calcAvgValue")
+    @ResponseBody
+    public String calcAvgValue() {
+        StatusResult statusResult = new StatusResult();
+        try {
+            String socketCode = request.getParameter("socketCode");
+            socketService.calcAvgValue(socketCode);
+        } catch (Exception e) {
+            statusResult.setStatus(1);
+        }
+        return JSON.toJSONString(statusResult);
+    }
 }

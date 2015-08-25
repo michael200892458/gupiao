@@ -120,7 +120,7 @@
                                         <td>${code.socketCode}</td>
                                         <td>${code.name}</td>
                                         <td>
-                                            <button class="btn btn-info" onclick="getSocketInfoObjects('${code.socketCode}');">查看</button>
+                                            <button class="btn btn-info" onclick="getSocketInfoObjects('${code.socketCode}', '${code.name}');">查看</button>
                                             <button class="btn btn-info" onclick="delSelectedCode('${code.socketCode}');">删除</button>
                                         </td>
                                     </tr>
@@ -137,7 +137,7 @@
                 <%--k线图--%>
                 <div class="col-xs-12">
                     <div class="box">
-                        <div class="box-body" id="socketChart">
+                        <div class="box-body" id="socketChart" style="height:400px">
                         </div>
                     </div>
                 </div>
@@ -228,10 +228,6 @@
                                 <div class="col-xs-4">
                                     <button class="btn btn-primary" onclick="addSocketCode();">提交</button>
                                 </div>
-                                <div class="col-xs-4 alert alert-info" >
-                                    <span><i class="fa fa-info"></i></span>
-                                    <span id="addSocketCodeAlert"></span>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -248,10 +244,6 @@
                                 </div>
                                 <div class="col-xs-4">
                                     <button class="btn btn-primary" onclick="delSocketCode();">删除</button>
-                                </div>
-                                <div class="col-xs-4 alert alert-info">
-                                    <span><i class="fa fa-info"></i></span>
-                                    <span id="delSocketCodeAlert"></span>
                                 </div>
                             </div>
                         </div>
@@ -303,6 +295,34 @@
 <!-- ./wrapper -->
 
 
+<!--modal-->
+<div class="modal fade" id="modalTarget" tabindex="-1" role="dialog"
+     aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title">
+                    <span>温馨提示</span>
+                </h4>
+            </div>
+            <div class="modal-body" id="modalContent">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary"
+                        data-dismiss="modal">确定
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+
 <!-- jQuery 2.0.2 -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <!-- Bootstrap -->
@@ -312,8 +332,66 @@
 <script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
 <!-- AdminLTE App -->
 <script src="/js/AdminLTE/app.js" type="text/javascript"></script>
+<%--echart js--%>
+<script src="/js/echarts.js"></script>
 <!-- page script -->
 <script type="text/javascript">
+    // 路径配置
+    require.config({
+        paths: {
+            echarts: '/js'
+        }
+    });
+    var myChart;
+    // 使用
+    require(
+            [
+                'echarts',
+                'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
+                'echarts/chart/line',
+                'echarts/chart/k'
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                myChart = ec.init(document.getElementById('socketChart'));
+
+                var option = {
+                    title : {
+                        text: '股票走势图',
+                        subtext: ''
+                    },
+                    tooltip : {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data:['5日均线', '10日均线', '20日均线', '30日均线', '60日均线']
+                    },
+                    toolbox: {
+                        show : true,
+                        feature : {
+                            mark : {show: true},
+                            dataView : {show: true, readOnly: false},
+                            magicType : {show: true, type: ['line']},
+                            restore : {show: true},
+                            saveAsImage : {show: true}
+                        }
+                    },
+                    calculable : true,
+                    yAxis : [
+                        {
+                            type : 'value',
+                            axisLabel : {
+                                formatter: '{value} 元'
+                            }
+                        }
+                    ]
+                };
+
+                // 为echarts对象加载数据
+                myChart.setOption(option);
+            }
+    );
+    getSocketInfoObjects("sh000001", "上证指数");
     $(function () {
         $("#example1").dataTable();
         $('#example2').dataTable({
@@ -329,7 +407,8 @@
     function addSocketCode() {
         var socketCode = $("#addSocketCode").val();
         if (!socketCode) {
-            $("#addSocketCodeAlert").text("代码不能为空");
+            $("#modalContent").text("代码不能为空");
+            $("#modalTarget").modal("show");
             return ;
         }
         $.ajax({
@@ -341,9 +420,11 @@
             success: function(data) {
                 data = JSON.parse(data);
                 if (data.status == 0) {
-                    $("#addSocketCodeAlert").text("添加成功");
+                    $("#modalContent").text("添加成功");
+                    $("#modalTarget").modal("show");
                 } else {
-                    $("#addSocketCodeAlert").text("添加失败,message:" + data.message);
+                    $("#modalContent").text("添加失败, message:" + data.message);
+                    $("#modalTarget").modal("show");
                 }
             }
         });
@@ -352,6 +433,8 @@
     function addSelectedCode() {
         var socketCode = $("#selectedSocketCode").val();
         if (!socketCode) {
+            $("#modalContent").text("代码不能为空");
+            $("#modalTarget").modal("show");
             return;
         }
         $.ajax({
@@ -364,8 +447,12 @@
                 data = JSON.parse(data);
                 if (data.status == 0) {
                     // 提示成功
+                    $("#modalContent").text("添加成功");
+                    $("#modalTarget").modal("show");
                 } else {
                     // 提示失败
+                    $("#modalContent").text("添加失败, message:" + data.message);
+                    $("#modalTarget").modal("show");
                 }
             }
         });
@@ -374,6 +461,8 @@
     function delSelectedCode(code) {
         var socketCode = code;
         if (!socketCode) {
+            $("#modalContent").text("代码不能为空");
+            $("#modalTarget").modal("show");
             return;
         }
         $.ajax({
@@ -385,9 +474,11 @@
             success: function (data) {
                 data = JSON.parse(data);
                 if (data.status == 0) {
-                    // 提示成功
+                    $("#modalContent").text("删除成功");
+                    $("#modalTarget").modal("show");
                 } else {
-                    //提示失败
+                    $("#modalContent").text("删除失败, message:{}", data.message);
+                    $("#modalTarget").modal("show");
                 }
             }
         });
@@ -396,7 +487,8 @@
     function delSocketCode() {
         var socketCode = $("#delSocketCode").val();
         if (!socketCode) {
-            $("#delSocketCodeAlert").text("代码不能空");
+            $("#modalContent").text("代码不能为空");
+            $("#modalTarget").modal("show");
             return ;
         }
         $.ajax({
@@ -408,15 +500,17 @@
             success: function(data) {
                 data = JSON.parse(data);
                 if (data.status == 0) {
-                    $("#delSocketCodeAlert").text("删除成功");
+                    $("#modalContent").text("删除成功");
+                    $("#modalTarget").modal("show");
                 } else {
-                    $("#delSocketCodeAlert").text("删除失败, message:" + data.message);
+                    $("#modalContent").text("删除失败, message:{}", data.message);
+                    $("#modalTarget").modal("show");
                 }
             }
         });
     }
 
-    function getSocketInfoObjects(socketCode) {
+    function getSocketInfoObjects(socketCode, socketName) {
         $.ajax({
             url: "/api/getSocketInfoObjects",
             type: "POST",
@@ -432,6 +526,8 @@
                 var avg20Value = [];
                 var avg30Value = [];
                 var avg60Value = [];
+                var kLineData = [];
+                var n = data.length;
                 for(var i = 0; i < data.length; i++) {
                     content += "<tr>";
                     content += "<td>" + data[i]["day"] + "</td>";
@@ -446,14 +542,103 @@
                     content += "<td>" + data[i]["avgPrice30"]/100.0 + "</td>";
                     content += "<td>" + data[i]["avgPrice60"]/100.0 + "</td>";
                     content += "</tr>";
-                    days[i] = data[i]["day"];
-                    avg5Value[i] = data[i]["avgPrice5"]/100.0;
-                    avg10Value[i] = data[i]["avgPrice10"]/100.0;
-                    avg20Value[i] = data[i]["avgPrice20"]/100.0;
-                    avg30Value[i] = data[i]["avgPrice30"]/100.0;
-                    avg60Value[i] = data[i]["avgPrice60"]/100.0;
+                    days[n - i - 1] = data[i]["day"];
+                    avg5Value[n - i - 1] = data[i]["avgPrice5"]/100.0;
+                    avg10Value[n - i - 1] = data[i]["avgPrice10"]/100.0;
+                    avg20Value[n - i - 1] = data[i]["avgPrice20"]/100.0;
+                    avg30Value[n - i - 1] = data[i]["avgPrice30"]/100.0;
+                    avg60Value[n - i - 1] = data[i]["avgPrice60"]/100.0;
+                    kLineData[n - i - 1] = [data[i]["openPrice"]/100.0, data[i]["currentPrice"]/100.0, data[i]["todayMinPrice"]/100.0, data[i]["todayMaxPrice"]/100.0];
                 }
                 $("#socketInfoContent").html(content);
+                var option = {
+                    title : {
+                        text: '股票走势图',
+                        subtext: socketName
+                    },
+                    xAxis : [
+                        {
+                            type : 'category',
+                            boundaryGap : false,
+                            data : days
+                        }
+                    ],
+                    series : [
+                        {
+                            name: 'k线',
+                            type : 'k',
+                            data:kLineData,
+                            symbol: "none"
+                        },
+                        {
+                            name:'5日均线',
+                            type:'line',
+                            itemStyle: {
+                                normal: {
+                                    lineStyle:{
+                                        width:1
+                                    }
+                                }
+                            },
+                            data:avg5Value,
+                            symbol: "none"
+
+                        },
+                        {
+                            name:'10日均线',
+                            type:'line',
+                            itemStyle: {
+                                normal: {
+                                    lineStyle:{
+                                        width:1
+                                    }
+                                }
+                            },
+                            data:avg10Value,
+                            symbol: "none"
+                        },
+                        {
+                            name:'20日均线',
+                            type:'line',
+                            itemStyle: {
+                                normal: {
+                                    lineStyle:{
+                                        width:1
+                                    }
+                                }
+                            },
+                            data:avg20Value,
+                            symbol: "none"
+                        },
+                        {
+                            name:'30日均线',
+                            type:'line',
+                            itemStyle: {
+                                normal: {
+                                    lineStyle:{
+                                        width:1
+                                    }
+                                }
+                            },
+                            data:avg30Value,
+                            symbol: "none"
+                        },
+                        {
+                            name:'60日均线',
+                            type:'line',
+                            itemStyle: {
+                                normal: {
+                                    lineStyle:{
+                                        width:1
+                                    }
+                                }
+                            },
+                            data:avg60Value,
+                            symbol: "none"
+                        }
+                    ]
+                };
+                myChart.setOption(option);
             }
         });
     }
