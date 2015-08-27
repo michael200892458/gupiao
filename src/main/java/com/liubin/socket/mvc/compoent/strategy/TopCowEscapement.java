@@ -73,11 +73,12 @@ public class TopCowEscapement {
         long lastModifiedTime = 0;
         try {
             lastModifiedTime = socketInfoRedis.getLastTopCowEscapementTime();
-            long startTime = System.currentTimeMillis();
+            long startTime = DateTime.now().withTimeAtStartOfDay().getMillis();
             if (lastModifiedTime > startTime) {
                 log.info("lastModifiedTime:{}", lastModifiedTime);
+                return;
             }
-            socketInfoRedis.setLastTopCowEscapementTime(lastModifiedTime);
+            socketInfoRedis.setLastTopCowEscapementTime(System.currentTimeMillis());
             List<String> codes = socketInfoRedis.getAllCodeList();
             List<String> validCodes = new ArrayList<String>();
             int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
