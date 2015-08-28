@@ -73,7 +73,9 @@ public class ErTiJiao {
             int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
             for (String code : codes) {
                 List<SocketInfoObject> socketInfoObjects = socketInfoRedis.getSocketInfoObjectListByEndDay(code, day, 2);
-                if (checkErTiJiao(socketInfoObjects)) {
+                if (socketInfoObjects.size() > 0
+                        && socketInfoObjects.get(0).getDay() == day
+                        && checkErTiJiao(socketInfoObjects)) {
                     validCodes.add(code);
                 }
             }

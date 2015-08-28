@@ -84,7 +84,9 @@ public class TopCowEscapement {
             int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
             for (String code : codes) {
                 List<SocketInfoObject> socketInfoObjects = socketInfoRedis.getSocketInfoObjectListByEndDay(code, day, 30);
-                if (checkTopCowEscapement(socketInfoObjects)) {
+                if (socketInfoObjects.size() > 0
+                        && socketInfoObjects.get(0).getDay() == day
+                        && checkTopCowEscapement(socketInfoObjects)) {
                     validCodes.add(code);
                 }
             }

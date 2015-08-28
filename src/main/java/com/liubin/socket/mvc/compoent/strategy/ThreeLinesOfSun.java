@@ -81,7 +81,9 @@ public class ThreeLinesOfSun {
             int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
             for (String code : codes) {
                 List<SocketInfoObject> socketInfoObjects = socketInfoRedis.getSocketInfoObjectListByEndDay(code, day, 3);
-                if (checkThreeLinesOfSun(socketInfoObjects)) {
+                if (socketInfoObjects.size() > 0
+                        && socketInfoObjects.get(0).getDay() == day
+                        && checkThreeLinesOfSun(socketInfoObjects)) {
                     validCodes.add(code);
                 }
             }
