@@ -51,6 +51,19 @@ public class ThreeLinesOfSun {
         if (volumeDiff < 0.1) {
             return false;
         }
+        if (roseValue >= 0.03 && roseValue < 0.05) {
+            if (volumeDiff < 0.3) {
+                return false;
+            }
+        } else if (roseValue >= 0.05 && roseValue < 0.07) {
+            if (volumeDiff < 0.5) {
+                return false;
+            }
+        } else if (roseValue >= 0.07) {
+            if (volumeDiff < 0.7) {
+                return false;
+            }
+        }
         if (nowSocketInfoObject.getOpenPrice() < nowSocketInfoObject.getAvgPrice5()
                 && nowSocketInfoObject.getOpenPrice() < nowSocketInfoObject.getAvgPrice10()
                 && nowSocketInfoObject.getOpenPrice() < nowSocketInfoObject.getAvgPrice30()
