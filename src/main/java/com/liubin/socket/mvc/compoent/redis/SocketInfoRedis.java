@@ -115,6 +115,19 @@ public class SocketInfoRedis {
 
     public void setSocketInfo(String code, SocketInfoObject socketInfoObject) {
         try {
+            List<SocketInfoObject> socketInfoObjects = getSocketInfoObjectListByEndDay(code, socketInfoObject.getDay() - 1, 1);
+            if (socketInfoObjects != null && socketInfoObjects.size() > 0) {
+                SocketInfoObject lastSocketInfoObject = socketInfoObjects.get(0);
+                // 如果所有的指标都是相同，表示股票没有开盘.
+                if (lastSocketInfoObject.getTurnover() == socketInfoObject.getTurnover()
+                        && lastSocketInfoObject.getVolume() == socketInfoObject.getVolume()
+                        && lastSocketInfoObject.getOpenPrice() == socketInfoObject.getOpenPrice()
+                        && lastSocketInfoObject.getLastClosePrice() == socketInfoObject.getLastClosePrice()
+                        && lastSocketInfoObject.getTodayMaxPrice() == socketInfoObject.getTodayMaxPrice()
+                        && lastSocketInfoObject.getTodayMinPrice() == socketInfoObject.getTodayMinPrice()) {
+                    return;
+                }
+            }
             SocketInfo.SocketInfoField field = ProtoUtils.toSocketInfoField(socketInfoObject.getDay());
             SocketInfo.SocketInfoValue value = ProtoUtils.toSocketInfoValue(socketInfoObject);
             redisClient.hset(code.getBytes(), field.toByteArray(), value.toByteArray());
