@@ -307,6 +307,14 @@ public class SocketInfoRedis {
         setLongValue(CommonConstants.LAST_TOP_COW_ESCAPEMENT_REDIS_KEY, value);
     }
 
+    public long getLastDumpDbTime() {
+        return getLongValue(CommonConstants.LAST_DUMP_DB_TIME_REDIS_KEY);
+    }
+
+    public void setLastDumpDbTime(long value) {
+        setLongValue(CommonConstants.LAST_DUMP_DB_TIME_REDIS_KEY, value);
+    }
+
     public String getErTiJiaoCodes() {
         try {
             return redisClient.get(CommonConstants.ER_TI_JIAO_CODES_REDIS_KEY);

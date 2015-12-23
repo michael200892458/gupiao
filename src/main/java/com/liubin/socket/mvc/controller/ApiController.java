@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.liubin.socket.mvc.service.SocketService;
 import com.liubin.socket.pojo.SocketInfoObject;
 import com.liubin.socket.pojo.StatusResult;
+import com.liubin.socket.utils.LogUtils;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/api")
 public class ApiController {
+
+    Logger log = LogUtils.getAccessLog();
 
     @Autowired
     HttpServletRequest request;
@@ -36,6 +40,7 @@ public class ApiController {
                 statusResult.setStatus(1);
                 statusResult.setMessage("添加失败");
             }
+            log.info("添加广告代码: socketCode:{}, result:{}", socketCode, JSON.toJSONString(statusResult));
         } catch (Exception e) {
             statusResult.setStatus(1);
         }
@@ -52,6 +57,7 @@ public class ApiController {
                 statusResult.setStatus(1);
                 statusResult.setMessage("添加失败");
             }
+            log.info("addSelectedCode:{}", socketCode);
         } catch (Exception e) {
             statusResult.setStatus(1);
         }
@@ -64,10 +70,11 @@ public class ApiController {
         StatusResult statusResult = new StatusResult();
         try {
             String socketCode = request.getParameter("socketCode");
-            if (!socketService.delSelectedCode(socketCode)) {
-                statusResult.setStatus(1);
-                statusResult.setMessage("删除失败");
-            }
+//            if (!socketService.delSelectedCode(socketCode)) {
+//                statusResult.setStatus(1);
+//                statusResult.setMessage("删除失败");
+//            }
+            log.info("delSelectedCode:{}", socketCode);
         } catch (Exception e) {
             statusResult.setStatus(1);
         }
@@ -80,10 +87,10 @@ public class ApiController {
         StatusResult statusResult = new StatusResult();
         try {
             String socketCode = request.getParameter("socketCode");
-            if (!socketService.clearOutOfDateCode(socketCode)) {
-                statusResult.setStatus(1);
-                statusResult.setMessage("清除失败");
-            }
+//            if (!socketService.clearOutOfDateCode(socketCode)) {
+//                statusResult.setStatus(1);
+//                statusResult.setMessage("清除失败");
+//            }
         } catch (Exception e) {
             statusResult.setStatus(1);
         }
@@ -96,7 +103,7 @@ public class ApiController {
         StatusResult statusResult = new StatusResult();
         try {
             String socketCode = request.getParameter("socketCode");
-            socketService.delSocketCode(socketCode);
+//            socketService.delSocketCode(socketCode);
         } catch (Exception e) {
             statusResult.setStatus(1);
         }
@@ -122,9 +129,9 @@ public class ApiController {
         StatusResult statusResult = new StatusResult();
         try {
             String socketCode = request.getParameter("socketCode");
-            if(!socketService.clearInvalidSocketInfo(socketCode)) {
-               statusResult.setStatus(1);
-            }
+//            if(!socketService.clearInvalidSocketInfo(socketCode)) {
+//               statusResult.setStatus(1);
+//            }
         } catch (Exception e) {
             statusResult.setStatus(1);
         }
@@ -138,6 +145,24 @@ public class ApiController {
         try {
             String socketCode = request.getParameter("socketCode");
             socketService.calcAvgValue(socketCode);
+        } catch (Exception e) {
+            statusResult.setStatus(1);
+        }
+        return JSON.toJSONString(statusResult);
+    }
+
+    @RequestMapping("/updateAllSocketInfo.do")
+    @ResponseBody
+    public String updateAllSocketInfo() {
+        StatusResult statusResult = new StatusResult();
+        try {
+            String magicCode = request.getParameter("magicCode");
+            if (!magicCode.equals("mySocketMagicCodeOfLiuBin")) {
+                statusResult.setMessage("不合法用户");
+                statusResult.setStatus(-1);
+                return JSON.toJSONString(statusResult);
+            }
+
         } catch (Exception e) {
             statusResult.setStatus(1);
         }

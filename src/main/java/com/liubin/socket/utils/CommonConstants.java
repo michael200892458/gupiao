@@ -16,6 +16,7 @@ public class CommonConstants {
     public static final String LAST_ER_TI_JIAO_MODIFIED_TIME_REDIS_KEY = "lastErTiJiaoModifiedTime";
     public static final String LAST_THREE_LINES_OF_SUN_REDIS_KEY = "lastThreeLinesOfSunTime";
     public static final String LAST_TOP_COW_ESCAPEMENT_REDIS_KEY = "lastTopCowEscapementTime";
+    public static final String LAST_DUMP_DB_TIME_REDIS_KEY = "lastDumpDbTime";
     public static final String ER_TI_JIAO_CODES_REDIS_KEY = "erTiJiaoCodes";
     public static final String THREE_LINES_OF_SUN_CODES_REDIS_KEY = "threeLinesOfSunCodes";
     public static final String TOP_COW_ESCAPEMENT_CODES_REDIS_KEY = "topCowEscapementCodes";

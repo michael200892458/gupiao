@@ -10,6 +10,7 @@ public class LogUtils {
     public static Logger accessLog = LogManager.getLogger("accessLog");
     public static Logger sysLog = LogManager.getLogger("sysLog");
     public static Logger errorLog = LogManager.getLogger("errorLog");
+    public static Logger dbLog = LogManager.getLogger("dbLog");
 
     public static Logger getAccessLog() {
         return accessLog;
@@ -21,5 +22,9 @@ public class LogUtils {
 
     public static Logger getErrorLog() {
         return errorLog;
+    }
+
+    public static Logger getDbLog() {
+        return dbLog;
     }
 }

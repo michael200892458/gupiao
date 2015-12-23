@@ -55,12 +55,14 @@ public class SinaSocketFlushProcessor extends TimerTask {
             boolean needUpdate = false;
             if (nowTimestamp >= amOpenTime.getMillis() && nowTimestamp <= amCloseTime.getMillis()
                     || nowTimestamp >= pmOpenTime.getMillis() && nowTimestamp <= pmCloseTime.getMillis()) {
+                log.info("现在是交易时段!");
                 needUpdate = true;
-            } else if (nowTimestamp > pmCloseTime.getMillis() && nowTimestamp - lastModifiedTime < 3600 * 6 * 1000L) {
+            } else if (nowTimestamp > pmCloseTime.getMillis() && nowTimestamp - lastModifiedTime > 3600 * 6 * 1000L) {
+                log.info("现在是休市时段, 不过距离上次更新超过6小时!");
                 needUpdate = true;
             }
             if (!needUpdate) {
-                log.info("the last modified time:{}", lastModifiedTime);
+                 log.info("the last modified time:{}", lastModifiedTime);
                  return;
             }
             socketInfoRedis.setLastSinaSocketLastModifiedTime(nowTimestamp);
@@ -87,7 +89,7 @@ public class SinaSocketFlushProcessor extends TimerTask {
                 log.info("sinaSocketInfoList:{}", JSON.toJSONString(sinaSocketInfoList));
                 for (SinaSocketInfo sinaSocketInfo : sinaSocketInfoList) {
                     // 停牌的股票不处理
-                    if (sinaSocketInfo.getCurrentPrice() == 0) {
+                    if (sinaSocketInfo.getCurrentPrice() == 0 || sinaSocketInfo.getVolume() == 0) {
                         continue;
                     }
                     List<SocketInfoObject> socketInfoObjectList = socketInfoRedis.getSocketInfoObjectListByEndDay(sinaSocketInfo.getCode(), today - 1, 60);

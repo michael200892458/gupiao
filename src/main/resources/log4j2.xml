@@ -5,6 +5,7 @@
         <Property name = "accessLogFilePath">${logRootPath}/access.txt</Property>
         <Property name="errorLogFilePath">${logRootPath}/error.txt</Property>
         <Property name = "sysLogFilePath">${logRootPath}/sys.txt</Property>
+        <Property name = "dbLogFilePath">${logRootPath}/db.txt</Property>
         <Property name = "logLevel">info</Property>
         <Property name = "isBufferedIO">true</Property>
         <Property name = "isImmediateFlush">true</Property>
@@ -67,6 +68,22 @@
         <Async name="asyncSysLogAppender">
             <AppenderRef ref="sysLogAppender"></AppenderRef>
         </Async>
+
+        <RollingRandomAccessFile name="dbLogAppender" fileName="${dbLogFilePath}" filePattern="${dbLogFilePath}.%d{yyyyMMdd}.%i.log.gz"
+                                 immediateFlush = "${isImmediateFlush}" ignoreExceptions = "${isIgnoreExceptions}" bufferSize="${bufferSize}">
+            <PatternLayout>
+                <Pattern></Pattern>
+                <charset>${encodingType}</charset>
+            </PatternLayout>
+            <DefaultRolloverStrategy max="100"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="250 MB"/>
+            </Policies>
+        </RollingRandomAccessFile>
+        <Async name="asyncDbLogAppender">
+            <AppenderRef ref="dbLogAppender"></AppenderRef>
+        </Async>
     </Appenders>
 
     <Loggers>
@@ -82,6 +99,9 @@
         </Logger>
         <Logger name = "sysLog" level="${logLevel}" additivity="false">
             <AppenderRef ref="sysLogAppender"></AppenderRef>
+        </Logger>
+        <Logger name="dbLog" level="${logLevel}" additivity="false">
+            <AppenderRef ref="dbLogAppender"></AppenderRef>
         </Logger>
     </Loggers>
 </Configuration>

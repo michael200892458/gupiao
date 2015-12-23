@@ -21,7 +21,7 @@ public class StrategyManager extends TimerTask {
     @Override
     public void run() {
         erTiJiao.run();
-        threeLinesOfSun.run();
+//        threeLinesOfSun.run();
         topCowEscapement.run();
     }
 }
