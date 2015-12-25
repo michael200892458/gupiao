@@ -1,6 +1,7 @@
 package com.liubin.socket.mvc.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.liubin.socket.mvc.compoent.SinaSocketFlushProcessor;
 import com.liubin.socket.mvc.service.SocketService;
 import com.liubin.socket.pojo.SocketInfoObject;
 import com.liubin.socket.pojo.StatusResult;
@@ -29,6 +30,8 @@ public class ApiController {
 
     @Autowired
     SocketService socketService;
+    @Autowired
+    SinaSocketFlushProcessor sinaSocketFlushProcessor;
 
     @RequestMapping("/addSocketCode")
     @ResponseBody
@@ -143,6 +146,12 @@ public class ApiController {
     public String calcAvgValue() {
         StatusResult statusResult = new StatusResult();
         try {
+            String magicCode = request.getParameter("magicCode");
+            if (!magicCode.equals("mySocketMagicCodeOfLiuBin")) {
+                statusResult.setMessage("不合法用户");
+                statusResult.setStatus(-1);
+                return JSON.toJSONString(statusResult);
+            }
             String socketCode = request.getParameter("socketCode");
             socketService.calcAvgValue(socketCode);
         } catch (Exception e) {
@@ -162,7 +171,7 @@ public class ApiController {
                 statusResult.setStatus(-1);
                 return JSON.toJSONString(statusResult);
             }
-
+            sinaSocketFlushProcessor.updateAllSocketsInfo();
         } catch (Exception e) {
             statusResult.setStatus(1);
         }

@@ -70,7 +70,7 @@ public class SinaSocketInfoParser {
             }
             return sinaSocketInfo;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 }

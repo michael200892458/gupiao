@@ -22,6 +22,8 @@ public class AppContext {
     StrategyManager strategyManager;
     @Autowired
     SinaSocketFlushProcessor sinaSocketFlushProcessor;
+    @Autowired
+    DumpDbProcessor dumpDbProcessor;
     Timer timer = new Timer();
 
     @PostConstruct
@@ -29,6 +31,7 @@ public class AppContext {
         try {
             timer.schedule(sinaSocketFlushProcessor, 0, 1000 * 30);
             timer.schedule(strategyManager, 0, 1000 * 30);
+            timer.schedule(dumpDbProcessor, 0, 1000L * 3600);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

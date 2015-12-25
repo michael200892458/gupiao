@@ -53,7 +53,7 @@
         </Async>
 
 
-        <RollingRandomAccessFile name = "sysLogAppender" fileName = "${sysLogFilePath}" filePattern = "${sysLogFilePath}.%d{yyyyMMdd}.%i.log.gz"
+        <RollingRandomAccessFile name = "sysLogAppender" fileName = "${sysLogFilePath}" filePattern = "${sysLogFilePath}.%d{yyyyMMdd}.log.gz"
                                  immediateFlush = "${isImmediateFlush}" ignoreExceptions = "${isIgnoreExceptions}" bufferSize="${bufferSize}">
             <PatternLayout>
                 <Pattern>%d[%p]%C{1}.%M(%L)|%m%n</Pattern>
@@ -62,7 +62,6 @@
             <DefaultRolloverStrategy max="100"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="250 MB"/>
             </Policies>
         </RollingRandomAccessFile>
         <Async name="asyncSysLogAppender">
@@ -72,7 +71,7 @@
         <RollingRandomAccessFile name="dbLogAppender" fileName="${dbLogFilePath}" filePattern="${dbLogFilePath}.%d{yyyyMMdd}.%i.log.gz"
                                  immediateFlush = "${isImmediateFlush}" ignoreExceptions = "${isIgnoreExceptions}" bufferSize="${bufferSize}">
             <PatternLayout>
-                <Pattern></Pattern>
+                <Pattern>%m%n</Pattern>
                 <charset>${encodingType}</charset>
             </PatternLayout>
             <DefaultRolloverStrategy max="100"/>

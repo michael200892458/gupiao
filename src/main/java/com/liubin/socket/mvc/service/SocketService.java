@@ -183,7 +183,7 @@ public class SocketService {
         List<SocketInfoObject> socketInfoObjects = new ArrayList<SocketInfoObject>();
         try {
             int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
-            socketInfoObjects = socketInfoRedis.getSocketInfoObjectListByEndDay(code, day, 90);
+            socketInfoObjects = socketInfoRedis.getSocketInfoObjectListByEndDay(code, day, 120);
         } catch (Exception e) {
             errorLog.error(e);
         }

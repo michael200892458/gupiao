@@ -368,13 +368,16 @@ public class SocketInfoRedis {
 
     protected long getLongValue(String key) {
         try {
+            if (redisClient == null) {
+                throw new RuntimeException("redisClient is null");
+            }
             String value = redisClient.get(key);
             if (value == null) {
                 return 0;
             }
             return Long.parseLong(value);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("get longValue error, key=" + key + ", ex:" + e.getMessage(), e);
         }
     }
 
