@@ -77,7 +77,6 @@
             <DefaultRolloverStrategy max="100"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="250 MB"/>
             </Policies>
         </RollingRandomAccessFile>
         <Async name="asyncDbLogAppender">

@@ -2,11 +2,15 @@ package com.liubin.socket.mvc.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.liubin.socket.mvc.compoent.SinaSocketFlushProcessor;
+import com.liubin.socket.mvc.compoent.redis.SocketInfoRedis;
+import com.liubin.socket.mvc.compoent.strategy.OversoldFiveAgv;
 import com.liubin.socket.mvc.service.SocketService;
 import com.liubin.socket.pojo.SocketInfoObject;
 import com.liubin.socket.pojo.StatusResult;
+import com.liubin.socket.utils.CommonConstants;
 import com.liubin.socket.utils.LogUtils;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +36,8 @@ public class ApiController {
     SocketService socketService;
     @Autowired
     SinaSocketFlushProcessor sinaSocketFlushProcessor;
+    @Autowired
+    OversoldFiveAgv oversoldFiveAgv;
 
     @RequestMapping("/addSocketCode")
     @ResponseBody
@@ -174,6 +180,35 @@ public class ApiController {
             sinaSocketFlushProcessor.updateAllSocketsInfo();
         } catch (Exception e) {
             statusResult.setStatus(1);
+        }
+        return JSON.toJSONString(statusResult);
+    }
+
+    @RequestMapping("/getOversoldFiveAvg.do")
+    @ResponseBody
+    public String getOversoldFiveAvg() {
+        StatusResult statusResult = new StatusResult();
+        try {
+            statusResult.setMessage(socketService.getOversoldFiveAvgCodes());
+        } catch (Exception e) {
+            statusResult.setStatus(-1);
+        }
+        return JSON.toJSONString(statusResult);
+    }
+
+    @RequestMapping("/calcOversoldFiveAvg.do")
+    @ResponseBody
+    public String calcOversoldFiveAvg(HttpServletRequest httpServletRequest) {
+        StatusResult statusResult = new StatusResult();
+        try {
+            String code = httpServletRequest.getParameter("code");
+            int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
+            if (code != null) {
+                day = Integer.parseInt(httpServletRequest.getParameter("day"));
+            }
+            statusResult.setMessage(String.valueOf(socketService.calcOversoldFiveAvgCodes(code, day)));
+        } catch (Exception e) {
+            statusResult.setStatus(-1);
         }
         return JSON.toJSONString(statusResult);
     }

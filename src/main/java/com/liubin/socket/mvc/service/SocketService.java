@@ -3,6 +3,7 @@ package com.liubin.socket.mvc.service;
 import com.alibaba.fastjson.JSON;
 import com.liubin.socket.mvc.compoent.SingleInstanceContainer;
 import com.liubin.socket.mvc.compoent.redis.SocketInfoRedis;
+import com.liubin.socket.mvc.compoent.strategy.OversoldFiveAgv;
 import com.liubin.socket.pojo.RecommendCode;
 import com.liubin.socket.pojo.SocketCode;
 import com.liubin.socket.pojo.SocketInfoObject;
@@ -29,6 +30,8 @@ public class SocketService {
     Logger log = LogUtils.getSysLog();
     Logger errorLog = LogUtils.getErrorLog();
 
+    @Autowired
+    OversoldFiveAgv oversoldFiveAgv;
     SocketInfoRedis socketInfoRedis;
     @Autowired
     SingleInstanceContainer singleInstanceContainer;
@@ -238,5 +241,16 @@ public class SocketService {
             return false;
         }
         return true;
+    }
+
+    public String getOversoldFiveAvgCodes() {
+        return socketInfoRedis.getOversoldFiveAvg();
+    }
+
+    public boolean calcOversoldFiveAvgCodes(String code, int day) {
+        if (code == null) {
+            oversoldFiveAgv.run(false);
+        }
+        return oversoldFiveAgv.check(code, day);
     }
 }

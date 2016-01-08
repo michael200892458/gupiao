@@ -11,8 +11,11 @@ import com.liubin.socket.utils.ProtoUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -23,98 +26,168 @@ public class SocketInfoRedis {
 
     Logger errorLog = LogUtils.getErrorLog();
 
-    RedisClient redisClient;
+    JedisPool jedisPool;
 
-    public void init(RedisClient redisClient) {
-        this.redisClient = redisClient;
+    public void init(InputStream inputStream) throws Exception {
+        try {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            JedisPoolConfig config = new JedisPoolConfig();
+            config.setMaxTotal(500);
+            config.setBlockWhenExhausted(false);      // 当连接池满的时候不阻塞
+            config.setTestOnBorrow(true);
+            config.setTestWhileIdle(true);
+            config.setMaxWaitMillis(1000);
+            config.setMaxIdle(50);
+            String host = properties.getProperty("host");
+            int port = Integer.parseInt(properties.getProperty("port"));
+            String password = properties.getProperty("password");
+            jedisPool = new JedisPool(config, host, port, 2000, password);
+            Jedis jedis = jedisPool.getResource();
+            jedisPool.returnResource(jedis);
+            inputStream.close();
+        } catch (Exception e) {
+            errorLog.error("init error", e);
+        }
+
     }
 
     public List<String> getAllCodeList() {
         List<String> codes = new ArrayList<String>();
+        Jedis jedis = null;
         try {
-            Map<String, String> valueMap = redisClient.hgetAll(CommonConstants.CODE_LIST_REDIS_KEY);
+            jedis = jedisPool.getResource();
+            Map<String, String> valueMap = jedis.hgetAll(CommonConstants.CODE_LIST_REDIS_KEY);
             for(Map.Entry<String, String> entry : valueMap.entrySet()) {
                 codes.add(entry.getKey());
             }
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
         return codes;
     }
 
     public SocketCode getSocketCode(String code) {
+        Jedis jedis = null;
         try {
+            jedis = jedisPool.getResource();
             SocketCode socketCode = new SocketCode();
             socketCode.setSocketCode(code);
-//            socketCode.setName(new String(redisClient.hget(CommonConstants.CODE_LIST_REDIS_KEY, code).getBytes("gbk"), "utf-8"));
-            socketCode.setName(redisClient.hget(CommonConstants.CODE_LIST_REDIS_KEY, code));
+            socketCode.setName(jedis.hget(CommonConstants.CODE_LIST_REDIS_KEY, code));
             return socketCode;
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
         return null;
     }
 
     public List<String> getSelectedCodeList() {
         List<String> codes = new ArrayList<String>();
+        Jedis jedis = null;
         try {
-            Map<String, String> valueMap = redisClient.hgetAll(CommonConstants.SELECTED_CODE_LIST_REDIS_KEY);
+            jedis = jedisPool.getResource();
+            Map<String, String> valueMap = jedis.hgetAll(CommonConstants.SELECTED_CODE_LIST_REDIS_KEY);
             for (Map.Entry<String, String> entry : valueMap.entrySet()) {
                 codes.add(entry.getKey());
             }
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
         return codes;
     }
 
     public void addSelectedCode(String code) {
+        Jedis jedis = null;
         try {
-            redisClient.hset(CommonConstants.SELECTED_CODE_LIST_REDIS_KEY, code, "1");
+            jedis = jedisPool.getResource();
+            jedis.hset(CommonConstants.SELECTED_CODE_LIST_REDIS_KEY, code, "1");
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
     }
 
     public void delSelectedCode(String code) {
+        Jedis jedis = null;
         try {
-            redisClient.hdel(CommonConstants.SELECTED_CODE_LIST_REDIS_KEY, code);
+            jedis = jedisPool.getResource();
+            jedis.hdel(CommonConstants.SELECTED_CODE_LIST_REDIS_KEY, code);
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
     }
 
     public void addCode(String code, String name) {
+        Jedis jedis = null;
         try {
+            jedis = jedisPool.getResource();
             int timestamp = (int)(System.currentTimeMillis()/1000);
-            redisClient.hset(CommonConstants.CODE_LIST_REDIS_KEY, code, name);
+            jedis.hset(CommonConstants.CODE_LIST_REDIS_KEY, code, name);
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
     }
 
     public boolean isExist(String code) {
+        Jedis jedis = null;
         try {
-            String ret = redisClient.hget(CommonConstants.CODE_LIST_REDIS_KEY, code);
+            jedis = jedisPool.getResource();
+            String ret = jedis.hget(CommonConstants.CODE_LIST_REDIS_KEY, code);
             if (ret != null) {
                 return true;
             }
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
         return false;
     }
 
     public void delCode(String code) {
+        Jedis jedis = null;
         try {
-            redisClient.del(code);
+            jedis = jedisPool.getResource();
+            jedis.del(code);
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
     }
 
     public void setSocketInfo(String code, SocketInfoObject socketInfoObject) {
+        Jedis jedis = null;
         try {
+            jedis = jedisPool.getResource();
             List<SocketInfoObject> socketInfoObjects = getSocketInfoObjectListByEndDay(code, socketInfoObject.getDay() - 1, 1);
             if (socketInfoObjects != null && socketInfoObjects.size() > 0) {
                 SocketInfoObject lastSocketInfoObject = socketInfoObjects.get(0);
@@ -130,16 +203,22 @@ public class SocketInfoRedis {
             }
             SocketInfo.SocketInfoField field = ProtoUtils.toSocketInfoField(socketInfoObject.getDay());
             SocketInfo.SocketInfoValue value = ProtoUtils.toSocketInfoValue(socketInfoObject);
-            redisClient.hset(code.getBytes(), field.toByteArray(), value.toByteArray());
+            jedis.hset(code.getBytes(), field.toByteArray(), value.toByteArray());
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
     }
 
     public List<SocketInfoObject> getSocketInfoObjectList(String code, int startDay, int endDay) {
         List<SocketInfoObject> socketInfoObjects = new ArrayList<SocketInfoObject>();
+        Jedis jedis = null;
         try {
-            Map<byte[], byte[]> valueMap = redisClient.hgetAll(code.getBytes());
+            jedis = jedisPool.getResource();
+            Map<byte[], byte[]> valueMap = jedis.hgetAll(code.getBytes());
             if (valueMap == null) {
                 return socketInfoObjects;
             }
@@ -161,14 +240,20 @@ public class SocketInfoRedis {
             });
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
         return socketInfoObjects;
     }
 
     public List<SocketInfoObject> getAllSocketInfoObject(String code) {
         List<SocketInfoObject> socketInfoObjects = new ArrayList<SocketInfoObject>();
+        Jedis jedis = null;
         try {
-            Map<byte[], byte[]> valueMap = redisClient.hgetAll(code.getBytes());
+            jedis = jedisPool.getResource();
+            Map<byte[], byte[]> valueMap = jedis.hgetAll(code.getBytes());
             if (valueMap == null) {
                 return socketInfoObjects;
             }
@@ -187,14 +272,27 @@ public class SocketInfoRedis {
             });
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
         return socketInfoObjects;
     }
 
+    /**
+     * 获取一只股票股价数据, 日期按大到小排序
+     * @param code
+     * @param endDay
+     * @param num
+     * @return
+     */
     public List<SocketInfoObject> getSocketInfoObjectListByEndDay(String code, int endDay, int num) {
         List<SocketInfoObject> socketInfoObjects = new ArrayList<SocketInfoObject>();
+        Jedis jedis = null;
         try {
-            Map<byte[], byte[]> valueMap = redisClient.hgetAll(code.getBytes());
+            jedis = jedisPool.getResource();
+            Map<byte[], byte[]> valueMap = jedis.hgetAll(code.getBytes());
             if (valueMap == null) {
                 return socketInfoObjects;
             }
@@ -216,6 +314,10 @@ public class SocketInfoRedis {
             });
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
         if (socketInfoObjects.size() <= num) {
             return socketInfoObjects;
@@ -224,8 +326,10 @@ public class SocketInfoRedis {
     }
 
     public void clearOutOfDateSocketInfoObject(String code) {
+        Jedis jedis = null;
         try {
-            Map<byte[], byte[]> valueMap = redisClient.hgetAll(code.getBytes());
+            jedis = jedisPool.getResource();
+            Map<byte[], byte[]> valueMap = jedis.hgetAll(code.getBytes());
             if (valueMap == null) {
                 return;
             }
@@ -238,16 +342,24 @@ public class SocketInfoRedis {
                 }
             }
             if (needDelFields.size() > 0) {
-                redisClient.hdel(code.getBytes(), needDelFields);
+                for (byte[] value : needDelFields) {
+                    jedis.hdel(code.getBytes(), value);
+                }
             }
         } catch (Exception e) {
             errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
     }
 
     public void clearInvalidSocketInfoObject(String code) {
+        Jedis jedis = null;
         try {
-            Map<byte[], byte[]> valueMap = redisClient.hgetAll(code.getBytes());
+            jedis = jedisPool.getResource();
+            Map<byte[], byte[]> valueMap = jedis.hgetAll(code.getBytes());
             if (valueMap == null) {
                 return;
             }
@@ -259,19 +371,15 @@ public class SocketInfoRedis {
                     needDelFields.add(entry.getKey());
                 }
             }
-            if (needDelFields.size() > 0) {
-                redisClient.hdel(code.getBytes(), needDelFields);
+            for (byte[] value : needDelFields) {
+                jedis.hdel(code.getBytes(), value);
             }
         } catch (Exception e) {
             errorLog.error(e);
-        }
-    }
-
-    public void set(String key, String value) {
-        try {
-            redisClient.set(key, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
     }
 
@@ -315,9 +423,17 @@ public class SocketInfoRedis {
         setLongValue(CommonConstants.LAST_DUMP_DB_TIME_REDIS_KEY, value);
     }
 
+    public long getLastOversoldFiveAvgTime() {
+        return getLongValue(CommonConstants.LAST_OVERSOLD_FIVE_AVG_TIME_REDIS_KEY);
+    }
+
+    public void setLastOversoldFiveAvgTime(long value) {
+        setLongValue(CommonConstants.LAST_OVERSOLD_FIVE_AVG_TIME_REDIS_KEY, value);
+    }
+
     public String getErTiJiaoCodes() {
         try {
-            return redisClient.get(CommonConstants.ER_TI_JIAO_CODES_REDIS_KEY);
+            return get(CommonConstants.ER_TI_JIAO_CODES_REDIS_KEY);
         } catch (Exception e) {
             errorLog.error(e);
         }
@@ -326,7 +442,7 @@ public class SocketInfoRedis {
 
     public void setErTiJiaoCodes(String value) {
         try {
-            redisClient.set(CommonConstants.ER_TI_JIAO_CODES_REDIS_KEY, value);
+            set(CommonConstants.ER_TI_JIAO_CODES_REDIS_KEY, value);
         } catch (Exception e) {
             errorLog.error(e);
         }
@@ -334,7 +450,7 @@ public class SocketInfoRedis {
 
     public String getThreeLinesOfSunCodes() {
         try {
-            return redisClient.get(CommonConstants.THREE_LINES_OF_SUN_CODES_REDIS_KEY);
+            return get(CommonConstants.THREE_LINES_OF_SUN_CODES_REDIS_KEY);
         } catch (Exception e) {
             errorLog.error(e);
         }
@@ -343,7 +459,7 @@ public class SocketInfoRedis {
 
     public void setThreeLinesOfSunCodes(String value) {
         try {
-            redisClient.set(CommonConstants.THREE_LINES_OF_SUN_CODES_REDIS_KEY, value);
+            set(CommonConstants.THREE_LINES_OF_SUN_CODES_REDIS_KEY, value);
         } catch (Exception e) {
             errorLog.error(e);
         }
@@ -351,7 +467,7 @@ public class SocketInfoRedis {
 
     public String getTopCowEscapementCodes() {
         try {
-            return redisClient.get(CommonConstants.TOP_COW_ESCAPEMENT_CODES_REDIS_KEY);
+            return get(CommonConstants.TOP_COW_ESCAPEMENT_CODES_REDIS_KEY);
         } catch (Exception e) {
             errorLog.error(e);
         }
@@ -360,7 +476,24 @@ public class SocketInfoRedis {
 
     public void setTopCowEscapementCodes(String value) {
         try {
-            redisClient.set(CommonConstants.TOP_COW_ESCAPEMENT_CODES_REDIS_KEY, value);
+            set(CommonConstants.TOP_COW_ESCAPEMENT_CODES_REDIS_KEY, value);
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+    }
+
+    public String getOversoldFiveAvg() {
+        try {
+            return get(CommonConstants.OVERSOLD_FIVE_AVG_CODES_REDIS_KEY);
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return null;
+    }
+
+    public void setOversoldFiveAvg(String value) {
+        try {
+            set(CommonConstants.OVERSOLD_FIVE_AVG_CODES_REDIS_KEY, value);
         } catch (Exception e) {
             errorLog.error(e);
         }
@@ -368,10 +501,7 @@ public class SocketInfoRedis {
 
     protected long getLongValue(String key) {
         try {
-            if (redisClient == null) {
-                throw new RuntimeException("redisClient is null");
-            }
-            String value = redisClient.get(key);
+            String value = get(key);
             if (value == null) {
                 return 0;
             }
@@ -386,9 +516,38 @@ public class SocketInfoRedis {
             if (StringUtils.isBlank(key)) {
                 throw new RuntimeException("key is null");
             }
-            redisClient.set(key, String.valueOf(value));
+            set(key, String.valueOf(value));
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public String get(String key) {
+        Jedis jedis = null;
+        try {
+            return jedis.get(key);
+        } catch (Exception e) {
+            errorLog.error(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return null;
+    }
+
+    public void set(String key, String value) {
+        Jedis jedis = null;
+        try {
+            jedis.set(key, value);
+        } catch (Exception e) {
+            if (jedis != null) {
+                jedis.close();
+            }
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
         }
     }
 }

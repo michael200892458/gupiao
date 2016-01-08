@@ -17,11 +17,14 @@ public class StrategyManager extends TimerTask {
     ThreeLinesOfSun threeLinesOfSun;
     @Autowired
     TopCowEscapement topCowEscapement;
+    @Autowired
+    OversoldFiveAgv oversoldFiveAgv;
 
     @Override
     public void run() {
         erTiJiao.run();
 //        threeLinesOfSun.run();
         topCowEscapement.run();
+        oversoldFiveAgv.run(true);
     }
 }

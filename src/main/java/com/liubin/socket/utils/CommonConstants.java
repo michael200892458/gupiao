@@ -17,9 +17,11 @@ public class CommonConstants {
     public static final String LAST_THREE_LINES_OF_SUN_REDIS_KEY = "lastThreeLinesOfSunTime";
     public static final String LAST_TOP_COW_ESCAPEMENT_REDIS_KEY = "lastTopCowEscapementTime";
     public static final String LAST_DUMP_DB_TIME_REDIS_KEY = "lastDumpDbTime";
+    public static final String LAST_OVERSOLD_FIVE_AVG_TIME_REDIS_KEY = "lastOversoldFiveAvgTime";
     public static final String ER_TI_JIAO_CODES_REDIS_KEY = "erTiJiaoCodes";
     public static final String THREE_LINES_OF_SUN_CODES_REDIS_KEY = "threeLinesOfSunCodes";
     public static final String TOP_COW_ESCAPEMENT_CODES_REDIS_KEY = "topCowEscapementCodes";
+    public static final String OVERSOLD_FIVE_AVG_CODES_REDIS_KEY = "oversoldFiveAvgCodes";
     public static final String SINA_SOCKET_URL_PREFIX = "http://hq.sinajs.cn/list=";
     public static final int CODES_NUM_PER_REQUEST = 100;
     public static final int SAVE_SOCKET_DAYS = 365*5;

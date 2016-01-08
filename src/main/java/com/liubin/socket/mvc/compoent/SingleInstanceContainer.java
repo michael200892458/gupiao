@@ -15,7 +15,6 @@ import java.io.InputStream;
  */
 @Repository
 public class SingleInstanceContainer {
-    RedisClient redisClient;
     SocketInfoRedis socketInfoRedis;
     Logger errorLog = LogUtils.getErrorLog();
     Logger log = LogUtils.getSysLog();
@@ -23,12 +22,9 @@ public class SingleInstanceContainer {
     @PostConstruct
     public void init() throws Exception {
         try {
-            redisClient = new RedisClient();
             InputStream inputStream = getClass().getClassLoader().getResourceAsStream("redis.properties");
-            redisClient.init(inputStream);
-            inputStream.close();
             socketInfoRedis = new SocketInfoRedis();
-            socketInfoRedis.init(redisClient);
+            socketInfoRedis.init(inputStream);
             socketInfoRedis.getLastDumpDbTime();
             log.info("init SingleInstanceContainer ok!");
         } catch (Exception e) {
@@ -36,10 +32,6 @@ public class SingleInstanceContainer {
             throw e;
         }
 
-    }
-
-    public RedisClient getRedisClient() {
-        return redisClient;
     }
 
     public SocketInfoRedis getSocketInfoRedis() {
