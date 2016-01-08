@@ -101,7 +101,7 @@ public class OversoldFiveAgv {
             if (validCodes.size() > 0) {
                 String content = JSON.toJSONString(validCodes);
                 socketInfoRedis.setOversoldFiveAvg(content);
-                MailUtils.sendMail("oversoldFiveAvg", content);
+                //MailUtils.sendMail("oversoldFiveAvg", content);
                 log.info("codes:{}", content);
             } else {
                 log.info("the valid codes is empty");

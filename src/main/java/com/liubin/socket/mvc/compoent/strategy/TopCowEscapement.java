@@ -93,7 +93,7 @@ public class TopCowEscapement {
             if (validCodes.size() > 0) {
                 String content = JSON.toJSONString(validCodes);
                 socketInfoRedis.setTopCowEscapementCodes(content);
-                MailUtils.sendMail("TopCowEscapement", content);
+                //MailUtils.sendMail("TopCowEscapement", content);
                 log.info("codes:{}", content);
             } else {
                 log.info("validCodes is empty");

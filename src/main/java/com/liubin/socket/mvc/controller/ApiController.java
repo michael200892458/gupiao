@@ -79,10 +79,10 @@ public class ApiController {
         StatusResult statusResult = new StatusResult();
         try {
             String socketCode = request.getParameter("socketCode");
-//            if (!socketService.delSelectedCode(socketCode)) {
-//                statusResult.setStatus(1);
-//                statusResult.setMessage("删除失败");
-//            }
+            if (!socketService.delSelectedCode(socketCode)) {
+                statusResult.setStatus(1);
+                statusResult.setMessage("删除失败");
+            }
             log.info("delSelectedCode:{}", socketCode);
         } catch (Exception e) {
             statusResult.setStatus(1);

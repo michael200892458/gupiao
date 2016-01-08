@@ -525,6 +525,7 @@ public class SocketInfoRedis {
     public String get(String key) {
         Jedis jedis = null;
         try {
+            jedis = jedisPool.getResource();
             return jedis.get(key);
         } catch (Exception e) {
             errorLog.error(e);
@@ -539,6 +540,7 @@ public class SocketInfoRedis {
     public void set(String key, String value) {
         Jedis jedis = null;
         try {
+            jedis = jedisPool.getResource();
             jedis.set(key, value);
         } catch (Exception e) {
             if (jedis != null) {
