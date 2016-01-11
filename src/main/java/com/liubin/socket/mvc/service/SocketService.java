@@ -7,6 +7,7 @@ import com.liubin.socket.mvc.compoent.strategy.OversoldFiveAgv;
 import com.liubin.socket.pojo.RecommendCode;
 import com.liubin.socket.pojo.SocketCode;
 import com.liubin.socket.pojo.SocketInfoObject;
+import com.liubin.socket.pojo.StrategyResult;
 import com.liubin.socket.utils.CommonConstants;
 import com.liubin.socket.utils.LogUtils;
 import com.sun.org.apache.bcel.internal.classfile.Code;
@@ -196,13 +197,7 @@ public class SocketService {
     public List<RecommendCode> getRecommendCodes() {
         List<RecommendCode> recommendCodes = new ArrayList<RecommendCode>();
         try {
-            Map<String, String> retMap = new HashMap<String, String>();
-            String erTiJiaoCodesStr = socketInfoRedis.getErTiJiaoCodes();
-            mergeRecommendCodes(erTiJiaoCodesStr, "二踢脚 ", retMap);
-            String threeLinesOfSunCodesStr = socketInfoRedis.getThreeLinesOfSunCodes();
-            mergeRecommendCodes(threeLinesOfSunCodesStr, "一阳穿三线", retMap);
-            String topCowEscapementCodesStr = socketInfoRedis.getTopCowEscapementCodes();
-            mergeRecommendCodes(topCowEscapementCodesStr, "越顶擒牛", retMap);
+            Map<String, String> retMap = socketInfoRedis.hgetAll(CommonConstants.RECOMMEND_CODES_REDIS_KEY);
             for(Map.Entry<String, String> entry : retMap.entrySet()) {
                 RecommendCode recommendCode = new RecommendCode();
                 recommendCode.setCode(entry.getKey());
@@ -243,14 +238,9 @@ public class SocketService {
         return true;
     }
 
-    public String getOversoldFiveAvgCodes() {
-        return socketInfoRedis.getOversoldFiveAvg();
-    }
-
     public boolean calcOversoldFiveAvgCodes(String code, int day) {
-        if (code == null) {
-            oversoldFiveAgv.run(false);
-        }
-        return oversoldFiveAgv.check(code, day);
+        List<SocketInfoObject> socketInfoObjects = socketInfoRedis.getSocketInfoObjectListByEndDay(code, day, 50);
+        StrategyResult strategyResult = oversoldFiveAgv.check(code, day, socketInfoObjects);
+        return strategyResult.isValid();
     }
 }

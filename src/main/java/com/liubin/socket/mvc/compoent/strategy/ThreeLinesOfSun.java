@@ -6,6 +6,7 @@ import com.liubin.socket.mvc.compoent.SingleInstanceContainer;
 import com.liubin.socket.mvc.compoent.redis.SocketInfoRedis;
 import com.liubin.socket.pojo.SinaSocketInfo;
 import com.liubin.socket.pojo.SocketInfoObject;
+import com.liubin.socket.pojo.StrategyResult;
 import com.liubin.socket.utils.*;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -20,7 +21,7 @@ import java.util.List;
  * Created by liubin on 2015/8/17.
  */
 @Component
-public class ThreeLinesOfSun {
+public class ThreeLinesOfSun implements StrategyInterface {
     Logger log = LogUtils.getSysLog();
     Logger errorLog = LogUtils.getErrorLog();
 
@@ -33,35 +34,43 @@ public class ThreeLinesOfSun {
         socketInfoRedis = singleInstanceContainer.getSocketInfoRedis();
     }
 
-    public boolean checkThreeLinesOfSun(List<SocketInfoObject> socketInfoObjects) {
-        if (socketInfoObjects.size() < 2) {
-            return false;
+    @Override
+    public boolean executeCheck(long nowTime) {
+        return false;
+    }
+
+    @Override
+    public StrategyResult check(String code, int day, List<SocketInfoObject> socketInfoObjects) {
+        StrategyResult strategyResult = new StrategyResult();
+        strategyResult.setCode(code);
+        strategyResult.setValid(false);
+        if (socketInfoObjects == null || socketInfoObjects.size() < 2) {
+            return strategyResult;
         }
-        int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
         SocketInfoObject nowSocketInfoObject = socketInfoObjects.get(0);
         SocketInfoObject lastSocketInfoObject = socketInfoObjects.get(1);
         if (nowSocketInfoObject.getDay() != day) {
-            return false;
+            return strategyResult;
         }
         double roseValue = SockInfoUtils.calcRoseValue(nowSocketInfoObject);
         if (roseValue < 0.03) {
-            return false;
+            return strategyResult;
         }
         double volumeDiff = (nowSocketInfoObject.getVolume() - lastSocketInfoObject.getVolume())*1.0 / lastSocketInfoObject.getVolume();
         if (volumeDiff < 0.1) {
-            return false;
+            return strategyResult;
         }
         if (roseValue >= 0.03 && roseValue < 0.05) {
             if (volumeDiff < 0.3) {
-                return false;
+                return strategyResult;
             }
         } else if (roseValue >= 0.05 && roseValue < 0.07) {
             if (volumeDiff < 0.5) {
-                return false;
+                return strategyResult;
             }
         } else if (roseValue >= 0.07) {
             if (volumeDiff < 0.7) {
-                return false;
+                return strategyResult;
             }
         }
         if (nowSocketInfoObject.getOpenPrice() < nowSocketInfoObject.getAvgPrice5()
@@ -70,47 +79,10 @@ public class ThreeLinesOfSun {
                 && nowSocketInfoObject.getCurrentPrice() > nowSocketInfoObject.getAvgPrice5()
                 && nowSocketInfoObject.getCurrentPrice() > nowSocketInfoObject.getAvgPrice10()
                 && nowSocketInfoObject.getCurrentPrice() > nowSocketInfoObject.getAvgPrice30()) {
-            return true;
+            strategyResult.setDescription("一阳穿三线");
+            strategyResult.setValid(true);
+            return strategyResult;
         }
-        return false;
-    }
-
-    public void run() {
-        long lastModifiedTime = 0;
-        try {
-            lastModifiedTime = socketInfoRedis.getLastThreeLinesOfSunTime();
-            long startTime = DateTime.now().withTimeAtStartOfDay().getMillis();
-            if (lastModifiedTime > startTime) {
-                log.info("lastModifiedTime:{}", lastModifiedTime);
-                return;
-            }
-            DateTime now = DateTime.now();
-            if (now.getHourOfDay() != 14 || now.getMinuteOfHour() < 48) {
-                return;
-            }
-            socketInfoRedis.setLastThreeLinesOfSunTime(System.currentTimeMillis());
-            List<String> codes = socketInfoRedis.getAllCodeList();
-            List<String> validCodes = new ArrayList<String>();
-            int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
-            for (String code : codes) {
-                List<SocketInfoObject> socketInfoObjects = socketInfoRedis.getSocketInfoObjectListByEndDay(code, day, 3);
-                if (socketInfoObjects.size() > 0
-                        && socketInfoObjects.get(0).getDay() == day
-                        && checkThreeLinesOfSun(socketInfoObjects)) {
-                    validCodes.add(code);
-                }
-            }
-            if (validCodes.size() > 0) {
-                String content = JSON.toJSONString(validCodes);
-                socketInfoRedis.setThreeLinesOfSunCodes(content);
-                MailUtils.sendMail("threeLinesOfSun", content);
-                log.info("codes:{}", content);
-            } else {
-                log.info("the valid codes is empty");
-            }
-        } catch (Exception e) {
-            errorLog.error(e);
-            socketInfoRedis.setLastThreeLinesOfSunTime(lastModifiedTime);
-        }
+        return strategyResult;
     }
 }

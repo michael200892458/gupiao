@@ -96,10 +96,10 @@ public class ApiController {
         StatusResult statusResult = new StatusResult();
         try {
             String socketCode = request.getParameter("socketCode");
-//            if (!socketService.clearOutOfDateCode(socketCode)) {
-//                statusResult.setStatus(1);
-//                statusResult.setMessage("清除失败");
-//            }
+            if (!socketService.clearOutOfDateCode(socketCode)) {
+                statusResult.setStatus(1);
+                statusResult.setMessage("清除失败");
+            }
         } catch (Exception e) {
             statusResult.setStatus(1);
         }
@@ -184,28 +184,13 @@ public class ApiController {
         return JSON.toJSONString(statusResult);
     }
 
-    @RequestMapping("/getOversoldFiveAvg.do")
-    @ResponseBody
-    public String getOversoldFiveAvg() {
-        StatusResult statusResult = new StatusResult();
-        try {
-            statusResult.setMessage(socketService.getOversoldFiveAvgCodes());
-        } catch (Exception e) {
-            statusResult.setStatus(-1);
-        }
-        return JSON.toJSONString(statusResult);
-    }
-
     @RequestMapping("/calcOversoldFiveAvg.do")
     @ResponseBody
     public String calcOversoldFiveAvg(HttpServletRequest httpServletRequest) {
         StatusResult statusResult = new StatusResult();
         try {
             String code = httpServletRequest.getParameter("code");
-            int day = Integer.parseInt(DateTime.now().toString(CommonConstants.DAY_FORMATTER));
-            if (code != null) {
-                day = Integer.parseInt(httpServletRequest.getParameter("day"));
-            }
+            int day = Integer.parseInt(httpServletRequest.getParameter("day"));
             statusResult.setMessage(String.valueOf(socketService.calcOversoldFiveAvgCodes(code, day)));
         } catch (Exception e) {
             statusResult.setStatus(-1);

@@ -499,7 +499,7 @@ public class SocketInfoRedis {
         }
     }
 
-    protected long getLongValue(String key) {
+    public long getLongValue(String key) {
         try {
             String value = get(key);
             if (value == null) {
@@ -511,7 +511,7 @@ public class SocketInfoRedis {
         }
     }
 
-    protected void setLongValue(String key, long value) {
+    public void setLongValue(String key, long value) {
         try {
             if (StringUtils.isBlank(key)) {
                 throw new RuntimeException("key is null");
@@ -543,9 +543,42 @@ public class SocketInfoRedis {
             jedis = jedisPool.getResource();
             jedis.set(key, value);
         } catch (Exception e) {
+            errorLog.error(e);
+        } finally {
             if (jedis != null) {
                 jedis.close();
             }
+        }
+    }
+
+    public Map<String, String> hgetAll(String key) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            Map<String, String> ret = jedis.hgetAll(key);
+            if (ret == null) {
+                return new HashMap<String, String>();
+            }
+            return ret;
+        } catch (Exception e) {
+            errorLog.error(e);
+            throw new RuntimeException(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+    public void setHashValue(String key, Map<String, String> valueMap) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            jedis.del(key);
+            jedis.hmset(key, valueMap);
+        } catch (Exception e) {
+            errorLog.error(e);
+            throw new RuntimeException(e);
         } finally {
             if (jedis != null) {
                 jedis.close();
