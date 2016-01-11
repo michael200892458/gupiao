@@ -574,8 +574,22 @@ public class SocketInfoRedis {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            jedis.del(key);
             jedis.hmset(key, valueMap);
+        } catch (Exception e) {
+            errorLog.error(e);
+            throw new RuntimeException(e);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+    public void del(String key) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            jedis.del(key);
         } catch (Exception e) {
             errorLog.error(e);
             throw new RuntimeException(e);
