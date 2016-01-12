@@ -41,8 +41,6 @@ public class StrategyManager extends TimerTask {
     @Autowired
     AvgMoveUp avgMoveUp;
 
-    long lastClearDay = 0;
-
     @PostConstruct
     public void init() throws Exception {
         socketInfoRedis = singleInstanceContainer.getSocketInfoRedis();
@@ -94,12 +92,9 @@ public class StrategyManager extends TimerTask {
                 }
             }
             if (recommendMap.size() > 0) {
-                if (lastClearDay != day) {
-                    lastClearDay = day;
-                    socketInfoRedis.del(CommonConstants.RECOMMEND_CODES_REDIS_KEY);
-                }
                 log.info("recommendMap:{}", JSON.toJSONString(recommendMap));
-                socketInfoRedis.setHashValue(CommonConstants.RECOMMEND_CODES_REDIS_KEY, recommendMap);
+                String key = CommonConstants.RECOMMEND_CODES_REDIS_KEY + day;
+                socketInfoRedis.setHashValue(key, recommendMap, 3600*24*7);
             }
         } catch (Exception e) {
 

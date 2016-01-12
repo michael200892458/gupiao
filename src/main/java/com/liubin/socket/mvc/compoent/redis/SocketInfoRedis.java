@@ -571,10 +571,17 @@ public class SocketInfoRedis {
     }
 
     public void setHashValue(String key, Map<String, String> valueMap) {
+        setHashValue(key, valueMap, 0);
+    }
+
+    public void setHashValue(String key, Map<String, String> valueMap, int expireTime) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
             jedis.hmset(key, valueMap);
+            if (expireTime > 0) {
+                jedis.expire(key, expireTime);
+            }
         } catch (Exception e) {
             errorLog.error(e);
             throw new RuntimeException(e);

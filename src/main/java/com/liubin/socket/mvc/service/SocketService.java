@@ -197,7 +197,16 @@ public class SocketService {
     public List<RecommendCode> getRecommendCodes() {
         List<RecommendCode> recommendCodes = new ArrayList<RecommendCode>();
         try {
-            Map<String, String> retMap = socketInfoRedis.hgetAll(CommonConstants.RECOMMEND_CODES_REDIS_KEY);
+            String key = CommonConstants.RECOMMEND_CODES_REDIS_KEY + DateTime.now().toString(CommonConstants.DAY_FORMATTER);
+            String key1 = CommonConstants.RECOMMEND_CODES_REDIS_KEY + DateTime.now().minusDays(1).toString(CommonConstants.DAY_FORMATTER);
+            String key2 = CommonConstants.RECOMMEND_CODES_REDIS_KEY + DateTime.now().minusDays(2).toString(CommonConstants.DAY_FORMATTER);
+            Map<String, String> retMap = socketInfoRedis.hgetAll(key);
+            if (retMap == null || retMap.size() == 0) {
+                retMap = socketInfoRedis.hgetAll(key1);
+                if (retMap == null || retMap.size() == 0) {
+                    retMap = socketInfoRedis.hgetAll(key2);
+                }
+            }
             for(Map.Entry<String, String> entry : retMap.entrySet()) {
                 RecommendCode recommendCode = new RecommendCode();
                 recommendCode.setCode(entry.getKey());
