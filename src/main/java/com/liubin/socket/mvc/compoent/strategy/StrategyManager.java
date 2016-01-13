@@ -37,6 +37,8 @@ public class StrategyManager extends TimerTask {
     TopCowEscapement topCowEscapement;
     @Autowired
     OversoldFiveAgv oversoldFiveAgv;
+    @Autowired
+    CrashSocketSelector crashSocketSelector;
 
     @Autowired
     AvgMoveUp avgMoveUp;
@@ -65,6 +67,9 @@ public class StrategyManager extends TimerTask {
             if (avgMoveUp.executeCheck(nowTime)) {
                 strategyList.add(avgMoveUp);
             }
+            if (crashSocketSelector.executeCheck(nowTime)) {
+                strategyList.add(crashSocketSelector);
+            }
             socketInfoRedis.setLongValue(CommonConstants.LAST_STRATEGY_UPDATE_TIME_REDIS_KEY, nowTime);
             List<String> codes = socketInfoRedis.getAllCodeList();
             Map<String, String> recommendMap = new HashMap<String, String>();
@@ -85,10 +90,7 @@ public class StrategyManager extends TimerTask {
                     }
                 }
                 if (reasons.size() > 0) {
-                    RecommendCode recommendCode = new RecommendCode();
-                    recommendCode.setCode(code);
-                    recommendCode.setReasons(JSON.toJSONString(reasons));
-                    recommendMap.put(code, JSON.toJSONString(JSON.toJSONString(reasons)));
+                    recommendMap.put(code, JSON.toJSONString(reasons));
                 }
             }
             if (recommendMap.size() > 0) {
