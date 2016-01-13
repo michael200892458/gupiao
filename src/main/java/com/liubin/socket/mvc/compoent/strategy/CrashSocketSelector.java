@@ -63,6 +63,15 @@ public class CrashSocketSelector implements StrategyInterface {
             if (price == 0) {
                 continue;
             }
+            // 对于高送转的股票, 只从除权后的日期开始算
+            if (i > 0) {
+                int lastPrice = socketInfoObjects.get(i-1).getCurrentPrice();
+                double diff = 1.0 * (price - lastPrice) / price;
+                if (diff > 0.2) {
+                    break;
+                }
+
+            }
             if (price < minPrice) {
                 minPrice = price;
                 minIdx = i;
