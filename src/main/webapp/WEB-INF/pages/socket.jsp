@@ -264,6 +264,7 @@
                                 <thead>
                                 <tr>
                                     <th>股票代码</th>
+                                    <th>股票</th>
                                     <th>推荐理由</th>
                                 </tr>
                                 </thead>
@@ -271,6 +272,7 @@
                                 <c:forEach items="${recommendCodes}" var="recommendCode">
                                     <tr>
                                         <td>${recommendCode.code}</td>
+                                        <td>${recommendCode.name}</td>
                                         <td>${recommendCode.reasons}</td>
                                     </tr>
                                 </c:forEach>

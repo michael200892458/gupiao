@@ -5,6 +5,7 @@ package com.liubin.socket.pojo;
  */
 public class RecommendCode {
     private String code;
+    private String name;
     private String reasons;
 
     public String getCode() {
@@ -21,5 +22,13 @@ public class RecommendCode {
 
     public void setReasons(String reasons) {
         this.reasons = reasons;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -141,7 +141,6 @@ public class SocketInfoRedis {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            int timestamp = (int)(System.currentTimeMillis()/1000);
             jedis.hset(CommonConstants.CODE_LIST_REDIS_KEY, code, name);
         } catch (Exception e) {
             errorLog.error(e);

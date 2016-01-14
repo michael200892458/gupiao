@@ -29,6 +29,9 @@ public class PageController {
     public String index(ModelMap modelMap) {
         try {
             List<RecommendCode> recommendCodes = socketService.getRecommendCodes();
+            for (RecommendCode recommendCode : recommendCodes) {
+                recommendCode.setName(socketService.getSocketName(recommendCode.getCode()));
+            }
             List<SocketCode> selectCodes = socketService.getSelectedCodes();
             modelMap.addAttribute("recommendCodes", recommendCodes);
             modelMap.addAttribute("selectedCodes", selectCodes);

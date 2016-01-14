@@ -58,6 +58,18 @@ public class SocketService {
         return false;
     }
 
+    public String getSocketName(String code) {
+        try {
+            SocketCode socketCode = socketInfoRedis.getSocketCode(code);
+            if (socketCode != null) {
+                return socketCode.getName();
+            }
+        } catch (Exception e) {
+            errorLog.error(e);
+        }
+        return null;
+    }
+
     public boolean delSelectedCode(String code) {
         try {
             if (!checkCode(code)) {
