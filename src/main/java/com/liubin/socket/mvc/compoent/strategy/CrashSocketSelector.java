@@ -86,7 +86,7 @@ public class CrashSocketSelector implements StrategyInterface {
             return strategyResult;
         }
         double diff = 1.0*(maxPrice - minPrice)/maxPrice;
-        if (diff > 0.5) {
+        if (diff > 0.45) {
             strategyResult.setValid(true);
             strategyResult.setDescription("[近期严重超跌, 最大跌幅:" + diff + "]");
         } else {
