@@ -50,14 +50,15 @@ public class CrashSocketSelector implements StrategyInterface {
         StrategyResult strategyResult = new StrategyResult();
         strategyResult.setValid(false);
         strategyResult.setCode(code);
-        if (socketInfoObjects == null || socketInfoObjects.size() < 21) {
+        if (socketInfoObjects == null || socketInfoObjects.size() < 10) {
             return strategyResult;
         }
         int maxPrice = 0;
         int maxIdx = -1;
         int minPrice = Integer.MAX_VALUE;
         int minIdx = -1;
-        for (int i = 0; i < 21; i++) {
+        int size = Math.min(socketInfoObjects.size(), 21);
+        for (int i = 0; i < size; i++) {
             SocketInfoObject socketInfoObject = socketInfoObjects.get(i);
             int price = socketInfoObject.getCurrentPrice();
             if (price == 0) {
