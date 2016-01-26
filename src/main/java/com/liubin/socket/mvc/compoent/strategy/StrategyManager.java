@@ -39,6 +39,8 @@ public class StrategyManager extends TimerTask {
     OversoldFiveAgv oversoldFiveAgv;
     @Autowired
     CrashSocketSelector crashSocketSelector;
+    @Autowired
+    ContinueDeclineSocket continueDeclineSocket;
 
     @Autowired
     AvgMoveUp avgMoveUp;
@@ -69,6 +71,9 @@ public class StrategyManager extends TimerTask {
             }
             if (crashSocketSelector.executeCheck(nowTime)) {
                 strategyList.add(crashSocketSelector);
+            }
+            if (continueDeclineSocket.executeCheck(nowTime)) {
+                strategyList.add(continueDeclineSocket);
             }
             socketInfoRedis.setLongValue(CommonConstants.LAST_STRATEGY_UPDATE_TIME_REDIS_KEY, nowTime);
             List<String> codes = socketInfoRedis.getAllCodeList();

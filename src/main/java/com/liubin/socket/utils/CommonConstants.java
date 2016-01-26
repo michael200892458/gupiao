@@ -21,6 +21,7 @@ public class CommonConstants {
     public static final String LAST_AVG_MOVE_UP_TIME_REDIS_KEY = "lastAvgMoveUpTime";
     public static final String LAST_STRATEGY_UPDATE_TIME_REDIS_KEY = "lastStrategyUpdateTime";
     public static final String LAST_CRASH_SOCKET_SELECTOR_TIME_REDIS_KEY = "lastCrashSocketSelectorTime";
+    public static final String LAST_CONTINUE_DECLINE_TIME_REDIS_KEY = "lastContinueDeclineTime";
     public static final String ER_TI_JIAO_CODES_REDIS_KEY = "erTiJiaoCodes";
     public static final String THREE_LINES_OF_SUN_CODES_REDIS_KEY = "threeLinesOfSunCodes";
     public static final String TOP_COW_ESCAPEMENT_CODES_REDIS_KEY = "topCowEscapementCodes";
